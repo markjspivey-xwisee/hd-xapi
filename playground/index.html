@@ -8,6 +8,8 @@
     <!-- CodeMirror for syntax highlighting -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/dracula.min.css">
+    <!-- D3.js for graph visualization -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
     <!-- Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -21,8 +23,12 @@
         </div>
         <nav>
             <a href="#validator" class="nav-link active" data-tab="validator">Validator</a>
-            <a href="#explorer" class="nav-link" data-tab="explorer">Ontology Explorer</a>
-            <a href="#examples" class="nav-link" data-tab="examples">Examples</a>
+            <a href="#inference" class="nav-link" data-tab="inference">Inference</a>
+            <a href="#sparql" class="nav-link" data-tab="sparql">SPARQL</a>
+            <a href="#compare" class="nav-link" data-tab="compare">Compare</a>
+            <a href="#anonymize" class="nav-link" data-tab="anonymize">Anonymize</a>
+            <a href="#graph" class="nav-link" data-tab="graph">Graph</a>
+            <a href="#explorer" class="nav-link" data-tab="explorer">Ontology</a>
             <a href="#about" class="nav-link" data-tab="about">About</a>
         </nav>
     </header>
@@ -79,6 +85,224 @@
             </div>
         </section>
 
+        <!-- Inference Demo Tab -->
+        <section id="inference" class="tab-content">
+            <div class="inference-container">
+                <div class="inference-input-panel">
+                    <div class="panel-header">
+                        <h2>Input Statement</h2>
+                        <div class="inference-select-wrapper">
+                            <select id="inference-example-select">
+                                <option value="completed-course">Completed Course</option>
+                                <option value="passed-assessment">Passed Assessment</option>
+                                <option value="learning-session">Learning Session with Registration</option>
+                                <option value="team-activity">Team Activity</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="inference-input-display" class="inference-input-display"></div>
+                    <div class="editor-footer">
+                        <button id="run-inference-btn" class="btn btn-primary">
+                            <span class="btn-icon">&#9881;</span> Run SHACL-AF Inference
+                        </button>
+                    </div>
+                </div>
+
+                <div class="inference-output-panel">
+                    <div class="panel-header">
+                        <h2>Auto-Generated Facts</h2>
+                        <span class="badge badge-green">HD-XAPI Only</span>
+                    </div>
+                    <div id="inference-results" class="inference-results">
+                        <div class="placeholder">
+                            <p>Click "Run Inference" to see auto-generated facts</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SPARQL Query Tab -->
+        <section id="sparql" class="tab-content">
+            <div class="sparql-container">
+                <div class="sparql-sidebar">
+                    <h3>Example Queries</h3>
+                    <div class="query-list">
+                        <div class="query-item active" data-query="prerequisite-gap">
+                            <h4>Prerequisite Gaps</h4>
+                            <p>Find learners missing main course</p>
+                        </div>
+                        <div class="query-item" data-query="competency-gaps">
+                            <h4>Competency Gaps</h4>
+                            <p>Missing skills for career path</p>
+                        </div>
+                        <div class="query-item" data-query="learning-journey">
+                            <h4>Learning Journey</h4>
+                            <p>Trace path via PROV links</p>
+                        </div>
+                        <div class="query-item" data-query="aggregate-scores">
+                            <h4>Aggregate Scores</h4>
+                            <p>Roll up child activity scores</p>
+                        </div>
+                        <div class="query-item" data-query="team-performance">
+                            <h4>Team Performance</h4>
+                            <p>Compare team members</p>
+                        </div>
+                        <div class="query-item" data-query="time-analysis">
+                            <h4>Time Analysis</h4>
+                            <p>Duration patterns analysis</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sparql-main">
+                    <div class="sparql-editor-panel">
+                        <div class="panel-header">
+                            <h2>SPARQL Query</h2>
+                            <div class="panel-actions">
+                                <button id="run-sparql-btn" class="btn btn-primary">
+                                    <span class="btn-icon">&#9654;</span> Execute
+                                </button>
+                            </div>
+                        </div>
+                        <div class="sparql-editor-wrapper">
+                            <textarea id="sparql-editor"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="sparql-results-panel">
+                        <div class="panel-header">
+                            <h2>Results</h2>
+                            <span id="sparql-result-count" class="result-count"></span>
+                        </div>
+                        <div id="sparql-results" class="sparql-results">
+                            <div class="placeholder">
+                                <p>Select a query and click Execute to see results</p>
+                            </div>
+                        </div>
+                        <div class="vanilla-equivalent-box">
+                            <h4>Vanilla xAPI Equivalent</h4>
+                            <div id="vanilla-equivalent">
+                                <p>Select a query to see why it's impossible in vanilla xAPI</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Side-by-Side Comparison Tab -->
+        <section id="compare" class="tab-content">
+            <div class="compare-container">
+                <div class="compare-header">
+                    <h2>Side-by-Side Comparison</h2>
+                    <p class="section-description">See exactly how HD-XAPI simplifies complex operations compared to vanilla xAPI.</p>
+                    <div class="compare-select-wrapper">
+                        <label>Scenario:</label>
+                        <select id="compare-scenario-select">
+                            <option value="prerequisite-check">Prerequisite Checking</option>
+                            <option value="competency-assertion">Competency Assertion</option>
+                            <option value="learning-path">Learning Path Progress</option>
+                            <option value="team-analytics">Team Analytics</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="compare-description" class="compare-description"></div>
+
+                <div class="compare-panels">
+                    <div class="compare-panel vanilla">
+                        <div class="compare-panel-header">
+                            <h3>Vanilla xAPI</h3>
+                        </div>
+                        <div class="compare-panel-body">
+                            <div id="vanilla-code" class="compare-code"></div>
+                            <div id="vanilla-metrics" class="compare-metrics"></div>
+                        </div>
+                    </div>
+
+                    <div class="compare-panel hdxapi">
+                        <div class="compare-panel-header">
+                            <h3>HD-XAPI (Semantic)</h3>
+                        </div>
+                        <div class="compare-panel-body">
+                            <div id="hdxapi-code" class="compare-code"></div>
+                            <div id="hdxapi-metrics" class="compare-metrics"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Anonymization Demo Tab -->
+        <section id="anonymize" class="tab-content">
+            <div class="anonymize-container">
+                <div class="anonymize-input-panel">
+                    <div class="panel-header">
+                        <h2>Original Statement</h2>
+                        <span class="badge badge-red">Contains PII</span>
+                    </div>
+                    <div id="original-statement" class="original-statement-display"></div>
+                    <div class="panel-header" style="border-top: 1px solid var(--border-color);">
+                        <h2>ODRL Policy</h2>
+                        <div class="policy-select-wrapper">
+                            <select id="policy-select">
+                                <option value="research-export">Research Export</option>
+                                <option value="gdpr-export">GDPR Compliance</option>
+                                <option value="aggregate-only">Aggregate Only</option>
+                                <option value="internal-audit">Internal Audit</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="policy-display" class="policy-display-wrapper"></div>
+                    <div id="transforms-display" class="transforms-display"></div>
+                </div>
+
+                <div class="anonymize-output-panel">
+                    <div class="panel-header">
+                        <h2>Anonymized Output</h2>
+                        <span class="badge badge-green">Privacy Safe</span>
+                    </div>
+                    <div id="anonymized-output" class="anonymized-output">
+                        <div class="placeholder">
+                            <p>Click "Apply Policy" to see anonymized output</p>
+                        </div>
+                    </div>
+                    <div class="editor-footer">
+                        <button id="apply-policy-btn" class="btn btn-primary">
+                            <span class="btn-icon">&#128274;</span> Apply ODRL Policy
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Visual Graph Explorer Tab -->
+        <section id="graph" class="tab-content">
+            <div class="graph-explorer-container">
+                <div class="graph-main-panel">
+                    <div class="panel-header">
+                        <h2>Semantic Graph</h2>
+                        <div class="graph-select-wrapper">
+                            <select id="graph-dataset-select">
+                                <option value="learning-journey">Learning Journey</option>
+                                <option value="team-learning">Team Learning</option>
+                                <option value="credential-chain">Credential Chain</option>
+                                <option value="prerequisite-graph">Prerequisite Graph</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="graph-container" class="graph-container"></div>
+                </div>
+
+                <div class="graph-sidebar">
+                    <div id="graph-description" class="graph-description">
+                        <p>Select a dataset to explore semantic relationships</p>
+                    </div>
+                    <div id="graph-legend" class="graph-legend"></div>
+                </div>
+            </div>
+        </section>
+
         <!-- Ontology Explorer Tab -->
         <section id="explorer" class="tab-content">
             <div class="explorer-container">
@@ -95,18 +319,6 @@
                             <p>Select a class from the sidebar to view its properties and constraints.</p>
                         </div>
                     </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Examples Tab -->
-        <section id="examples" class="tab-content">
-            <div class="examples-container">
-                <h2>Example Statements</h2>
-                <p class="section-description">Click on any example to load it into the validator.</p>
-
-                <div class="examples-grid" id="examples-grid">
-                    <!-- Populated by JS -->
                 </div>
             </div>
         </section>
@@ -194,6 +406,7 @@
     <!-- Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/sparql/sparql.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/edit/matchbrackets.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/edit/closebrackets.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/n3@1.17.2/browser/n3.min.js"></script>
@@ -202,6 +415,11 @@
     <script src="js/examples.js"></script>
     <script src="js/ontology.js"></script>
     <script src="js/validator.js"></script>
+    <script src="js/inference.js"></script>
+    <script src="js/sparql.js"></script>
+    <script src="js/compare.js"></script>
+    <script src="js/anonymize.js"></script>
+    <script src="js/graph.js"></script>
     <script src="js/playground.js"></script>
 </body>
 </html>
