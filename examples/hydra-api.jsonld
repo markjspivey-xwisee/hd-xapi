@@ -1,0 +1,478 @@
+{
+  "@context": [
+    "http://www.w3.org/ns/hydra/context.jsonld",
+    {
+      "xapi": "https://w3id.org/xapi/ontology#",
+      "tla": "https://w3id.org/xapi/tla#",
+      "dcterms": "http://purl.org/dc/terms/",
+      "schema": "http://schema.org/"
+    }
+  ],
+  "@id": "https://example.org/xapi/api",
+  "@type": "ApiDocumentation",
+  "title": "HD-XAPI Learning Record Store API",
+  "description": "Semantic xAPI LRS with OWL ontology, SHACL validation, and ODRL policy support.",
+  "entryPoint": "https://example.org/xapi/",
+
+  "supportedClass": [
+    {
+      "@id": "xapi:Statement",
+      "@type": "Class",
+      "title": "Statement",
+      "description": "An xAPI Statement representing a learning experience.",
+      "supportedProperty": [
+        {
+          "property": "xapi:id",
+          "title": "id",
+          "description": "UUID identifier for the statement",
+          "required": false,
+          "readonly": false,
+          "writeonly": false
+        },
+        {
+          "property": "xapi:actor",
+          "title": "actor",
+          "description": "The Agent or Group who performed the action",
+          "required": true,
+          "readonly": false,
+          "writeonly": false
+        },
+        {
+          "property": "xapi:verb",
+          "title": "verb",
+          "description": "The action performed",
+          "required": true,
+          "readonly": false,
+          "writeonly": false
+        },
+        {
+          "property": "xapi:object",
+          "title": "object",
+          "description": "The Activity, Agent, or Statement acted upon",
+          "required": true,
+          "readonly": false,
+          "writeonly": false
+        },
+        {
+          "property": "xapi:result",
+          "title": "result",
+          "description": "The outcome of the experience",
+          "required": false,
+          "readonly": false,
+          "writeonly": false
+        },
+        {
+          "property": "xapi:context",
+          "title": "context",
+          "description": "Contextual information about the experience",
+          "required": false,
+          "readonly": false,
+          "writeonly": false
+        },
+        {
+          "property": "xapi:timestamp",
+          "title": "timestamp",
+          "description": "When the experience occurred (ISO 8601)",
+          "required": false,
+          "readonly": false,
+          "writeonly": false
+        },
+        {
+          "property": "xapi:stored",
+          "title": "stored",
+          "description": "When the statement was stored (set by LRS)",
+          "required": false,
+          "readonly": true,
+          "writeonly": false
+        },
+        {
+          "property": "xapi:authority",
+          "title": "authority",
+          "description": "Who is asserting this statement (set by LRS)",
+          "required": false,
+          "readonly": true,
+          "writeonly": false
+        }
+      ],
+      "supportedOperation": [
+        {
+          "@type": "Operation",
+          "method": "GET",
+          "title": "Retrieve Statements",
+          "description": "Retrieve statements matching query parameters",
+          "returns": "Collection",
+          "expects": null,
+          "statusCodes": [
+            { "code": 200, "description": "Statements retrieved successfully" },
+            { "code": 400, "description": "Invalid query parameters" },
+            { "code": 401, "description": "Unauthorized" }
+          ]
+        },
+        {
+          "@type": "Operation",
+          "method": "POST",
+          "title": "Store Statement",
+          "description": "Store a new statement (LRS generates ID)",
+          "returns": "xsd:string",
+          "expects": "xapi:Statement",
+          "statusCodes": [
+            { "code": 200, "description": "Statement stored successfully" },
+            { "code": 400, "description": "Invalid statement (SHACL validation failed)" },
+            { "code": 401, "description": "Unauthorized" },
+            { "code": 409, "description": "Conflict (duplicate statement ID)" }
+          ]
+        },
+        {
+          "@type": "Operation",
+          "method": "PUT",
+          "title": "Store Statement with ID",
+          "description": "Store a statement with client-provided ID",
+          "returns": "void",
+          "expects": "xapi:Statement",
+          "statusCodes": [
+            { "code": 204, "description": "Statement stored successfully" },
+            { "code": 400, "description": "Invalid statement" },
+            { "code": 401, "description": "Unauthorized" },
+            { "code": 409, "description": "Conflict (ID already exists with different content)" }
+          ]
+        }
+      ]
+    },
+
+    {
+      "@id": "xapi:Agent",
+      "@type": "Class",
+      "title": "Agent",
+      "description": "An individual Actor identified by an inverse functional identifier.",
+      "supportedProperty": [
+        {
+          "property": "xapi:name",
+          "title": "name",
+          "description": "Human-readable name",
+          "required": false
+        },
+        {
+          "property": "xapi:mbox",
+          "title": "mbox",
+          "description": "Email address (mailto: URI)",
+          "required": false
+        },
+        {
+          "property": "xapi:mbox_sha1sum",
+          "title": "mbox_sha1sum",
+          "description": "SHA1 hash of email",
+          "required": false
+        },
+        {
+          "property": "xapi:openid",
+          "title": "openid",
+          "description": "OpenID identifier",
+          "required": false
+        },
+        {
+          "property": "xapi:account",
+          "title": "account",
+          "description": "Account on existing system",
+          "required": false
+        }
+      ]
+    },
+
+    {
+      "@id": "xapi:Activity",
+      "@type": "Class",
+      "title": "Activity",
+      "description": "A learning activity or content.",
+      "supportedProperty": [
+        {
+          "property": "xapi:activityId",
+          "title": "id",
+          "description": "IRI identifier for the activity",
+          "required": true
+        },
+        {
+          "property": "xapi:definition",
+          "title": "definition",
+          "description": "Activity metadata",
+          "required": false
+        }
+      ]
+    }
+  ],
+
+  "possibleStatus": [
+    { "code": 200, "description": "OK - Request succeeded" },
+    { "code": 204, "description": "No Content - Request succeeded, no body" },
+    { "code": 400, "description": "Bad Request - Invalid input" },
+    { "code": 401, "description": "Unauthorized - Authentication required" },
+    { "code": 403, "description": "Forbidden - Policy violation" },
+    { "code": 404, "description": "Not Found - Resource does not exist" },
+    { "code": 409, "description": "Conflict - Resource conflict" },
+    { "code": 412, "description": "Precondition Failed - ETag mismatch" },
+    { "code": 429, "description": "Too Many Requests - Rate limited" },
+    { "code": 500, "description": "Internal Server Error" }
+  ],
+
+  "member": [
+    {
+      "@id": "https://example.org/xapi/statements",
+      "@type": "Collection",
+      "title": "Statements",
+      "description": "Collection of xAPI Statements",
+      "manages": {
+        "property": "rdf:type",
+        "object": "xapi:Statement"
+      },
+      "supportedOperation": [
+        {
+          "@type": "Operation",
+          "method": "GET",
+          "title": "Query Statements",
+          "description": "Query statements with filters",
+          "returns": {
+            "@type": "Collection",
+            "member": "xapi:Statement"
+          }
+        },
+        {
+          "@type": "Operation",
+          "method": "POST",
+          "title": "Create Statement",
+          "description": "Create a new statement",
+          "expects": "xapi:Statement",
+          "returns": "xsd:string"
+        }
+      ],
+      "search": {
+        "@type": "IriTemplate",
+        "template": "https://example.org/xapi/statements{?statementId,voidedStatementId,agent,verb,activity,registration,related_activities,related_agents,since,until,limit,format,attachments,ascending}",
+        "mapping": [
+          { "variable": "statementId", "property": "xapi:id", "required": false },
+          { "variable": "voidedStatementId", "property": "xapi:id", "required": false },
+          { "variable": "agent", "property": "xapi:actor", "required": false },
+          { "variable": "verb", "property": "xapi:verb", "required": false },
+          { "variable": "activity", "property": "xapi:object", "required": false },
+          { "variable": "registration", "property": "xapi:registration", "required": false },
+          { "variable": "since", "property": "xapi:stored", "required": false },
+          { "variable": "until", "property": "xapi:stored", "required": false },
+          { "variable": "limit", "property": "hydra:limit", "required": false },
+          { "variable": "ascending", "property": "hydra:ascending", "required": false }
+        ]
+      }
+    },
+
+    {
+      "@id": "https://example.org/xapi/agents",
+      "@type": "Collection",
+      "title": "Agents",
+      "description": "Agent query endpoint",
+      "supportedOperation": [
+        {
+          "@type": "Operation",
+          "method": "GET",
+          "title": "Query Agent",
+          "description": "Get information about an agent",
+          "returns": "xapi:Agent"
+        }
+      ]
+    },
+
+    {
+      "@id": "https://example.org/xapi/agents/profile",
+      "@type": "Collection",
+      "title": "Agent Profiles",
+      "description": "Agent profile document storage",
+      "supportedOperation": [
+        {
+          "@type": "Operation",
+          "method": "GET",
+          "title": "Get Agent Profile",
+          "returns": "schema:DigitalDocument"
+        },
+        {
+          "@type": "Operation",
+          "method": "PUT",
+          "title": "Store Agent Profile",
+          "expects": "schema:DigitalDocument"
+        },
+        {
+          "@type": "Operation",
+          "method": "POST",
+          "title": "Merge Agent Profile",
+          "expects": "schema:DigitalDocument"
+        },
+        {
+          "@type": "Operation",
+          "method": "DELETE",
+          "title": "Delete Agent Profile"
+        }
+      ]
+    },
+
+    {
+      "@id": "https://example.org/xapi/activities",
+      "@type": "Collection",
+      "title": "Activities",
+      "description": "Activity query endpoint",
+      "supportedOperation": [
+        {
+          "@type": "Operation",
+          "method": "GET",
+          "title": "Get Activity",
+          "description": "Get full activity definition",
+          "returns": "xapi:Activity"
+        }
+      ]
+    },
+
+    {
+      "@id": "https://example.org/xapi/activities/profile",
+      "@type": "Collection",
+      "title": "Activity Profiles",
+      "description": "Activity profile document storage",
+      "supportedOperation": [
+        {
+          "@type": "Operation",
+          "method": "GET",
+          "title": "Get Activity Profile",
+          "returns": "schema:DigitalDocument"
+        },
+        {
+          "@type": "Operation",
+          "method": "PUT",
+          "title": "Store Activity Profile",
+          "expects": "schema:DigitalDocument"
+        },
+        {
+          "@type": "Operation",
+          "method": "POST",
+          "title": "Merge Activity Profile",
+          "expects": "schema:DigitalDocument"
+        },
+        {
+          "@type": "Operation",
+          "method": "DELETE",
+          "title": "Delete Activity Profile"
+        }
+      ]
+    },
+
+    {
+      "@id": "https://example.org/xapi/activities/state",
+      "@type": "Collection",
+      "title": "Activity State",
+      "description": "Activity state document storage",
+      "supportedOperation": [
+        {
+          "@type": "Operation",
+          "method": "GET",
+          "title": "Get State",
+          "returns": "schema:DigitalDocument"
+        },
+        {
+          "@type": "Operation",
+          "method": "PUT",
+          "title": "Store State",
+          "expects": "schema:DigitalDocument"
+        },
+        {
+          "@type": "Operation",
+          "method": "POST",
+          "title": "Merge State",
+          "expects": "schema:DigitalDocument"
+        },
+        {
+          "@type": "Operation",
+          "method": "DELETE",
+          "title": "Delete State"
+        }
+      ]
+    },
+
+    {
+      "@id": "https://example.org/xapi/about",
+      "@type": "Resource",
+      "title": "About",
+      "description": "LRS information endpoint",
+      "supportedOperation": [
+        {
+          "@type": "Operation",
+          "method": "GET",
+          "title": "Get LRS Information",
+          "description": "Returns LRS version and extensions",
+          "returns": {
+            "@type": "Class",
+            "supportedProperty": [
+              { "property": "xapi:version", "title": "version" },
+              { "property": "dcterms:extensions", "title": "extensions" }
+            ]
+          }
+        }
+      ]
+    },
+
+    {
+      "@id": "https://example.org/xapi/profiles",
+      "@type": "Collection",
+      "title": "Profile Registry",
+      "description": "xAPI Profile catalog (DCAT)",
+      "supportedOperation": [
+        {
+          "@type": "Operation",
+          "method": "GET",
+          "title": "List Profiles",
+          "description": "Get available xAPI profiles",
+          "returns": "dcat:Catalog"
+        }
+      ]
+    },
+
+    {
+      "@id": "https://example.org/xapi/sparql",
+      "@type": "Resource",
+      "title": "SPARQL Endpoint",
+      "description": "SPARQL query interface for advanced queries",
+      "supportedOperation": [
+        {
+          "@type": "Operation",
+          "method": "GET",
+          "title": "SPARQL Query (GET)",
+          "description": "Execute SPARQL query via URL parameter"
+        },
+        {
+          "@type": "Operation",
+          "method": "POST",
+          "title": "SPARQL Query (POST)",
+          "description": "Execute SPARQL query via request body"
+        }
+      ]
+    }
+  ],
+
+  "extension": [
+    {
+      "@id": "https://example.org/xapi/ext/shacl-validation",
+      "@type": "Extension",
+      "title": "SHACL Validation",
+      "description": "Statements are validated against SHACL shapes before storage"
+    },
+    {
+      "@id": "https://example.org/xapi/ext/odrl-policies",
+      "@type": "Extension",
+      "title": "ODRL Policy Enforcement",
+      "description": "Export operations respect ODRL access policies"
+    },
+    {
+      "@id": "https://example.org/xapi/ext/content-negotiation",
+      "@type": "Extension",
+      "title": "RDF Content Negotiation",
+      "description": "Supports JSON-LD, Turtle, and N-Triples in addition to xAPI JSON"
+    },
+    {
+      "@id": "https://example.org/xapi/ext/tla-profile",
+      "@type": "Extension",
+      "title": "TLA Profile Support",
+      "description": "Full support for Total Learning Architecture profile"
+    }
+  ]
+}

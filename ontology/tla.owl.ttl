@@ -1,0 +1,470 @@
+@prefix : <https://w3id.org/xapi/tla#> .
+@prefix tla: <https://w3id.org/xapi/tla#> .
+@prefix xapi: <https://w3id.org/xapi/ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix ceasn: <https://purl.org/ctdl/terms/> .
+
+@base <https://w3id.org/xapi/tla> .
+
+# =============================================================================
+# ONTOLOGY METADATA
+# =============================================================================
+
+<https://w3id.org/xapi/tla> rdf:type owl:Ontology ;
+    owl:versionIRI <https://w3id.org/xapi/tla/1.0.0> ;
+    owl:imports <https://w3id.org/xapi/ontology> ;
+    dcterms:title "Total Learning Architecture (TLA) Ontology Extension"@en ;
+    dcterms:description "OWL ontology extension for the DoD Total Learning Architecture, providing semantic definitions for competency-based learning, career paths, and credential management."@en ;
+    dcterms:creator "HD-XAPI Project" ;
+    dcterms:license <https://opensource.org/licenses/MIT> ;
+    dcterms:created "2026-01-07"^^xsd:date ;
+    owl:versionInfo "1.0.0" ;
+    rdfs:seeAlso <https://adlnet.gov/projects/tla/> .
+
+# =============================================================================
+# COMPETENCY FRAMEWORK CLASSES
+# =============================================================================
+
+tla:Competency rdf:type owl:Class ;
+    rdfs:label "Competency"@en ;
+    rdfs:comment "A measurable skill, knowledge, or ability that a learner can demonstrate."@en ;
+    rdfs:subClassOf skos:Concept ;
+    owl:equivalentClass ceasn:Competency ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/tla> .
+
+tla:CompetencyFramework rdf:type owl:Class ;
+    rdfs:label "Competency Framework"@en ;
+    rdfs:comment "A structured collection of competencies organized in a hierarchy."@en ;
+    rdfs:subClassOf skos:ConceptScheme ;
+    owl:equivalentClass ceasn:CompetencyFramework ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/tla> .
+
+tla:CompetencyAssertion rdf:type owl:Class ;
+    rdfs:label "Competency Assertion"@en ;
+    rdfs:comment "A claim that a learner has demonstrated a particular competency."@en ;
+    rdfs:subClassOf prov:Entity ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/tla> .
+
+tla:CompetencyLevel rdf:type owl:Class ;
+    rdfs:label "Competency Level"@en ;
+    rdfs:comment "A proficiency level for a competency (e.g., novice, intermediate, expert)."@en ;
+    rdfs:subClassOf skos:Concept ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/tla> .
+
+# =============================================================================
+# LEARNING PATH CLASSES
+# =============================================================================
+
+tla:LearningPath rdf:type owl:Class ;
+    rdfs:label "Learning Path"@en ;
+    rdfs:comment "A sequence of learning activities designed to achieve specific competencies."@en ;
+    rdfs:subClassOf xapi:Activity ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/tla> .
+
+tla:LearningObjective rdf:type owl:Class ;
+    rdfs:label "Learning Objective"@en ;
+    rdfs:comment "A specific goal that a learning activity is designed to achieve."@en ;
+    rdfs:subClassOf skos:Concept ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/tla> .
+
+tla:CareerPath rdf:type owl:Class ;
+    rdfs:label "Career Path"@en ;
+    rdfs:comment "A sequence of roles and competencies representing career progression."@en ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/tla> .
+
+tla:JobRole rdf:type owl:Class ;
+    rdfs:label "Job Role"@en ;
+    rdfs:comment "A position or role requiring specific competencies."@en ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/tla> .
+
+# =============================================================================
+# CREDENTIAL CLASSES
+# =============================================================================
+
+tla:Credential rdf:type owl:Class ;
+    rdfs:label "Credential"@en ;
+    rdfs:comment "A qualification, achievement, or certification."@en ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/tla> .
+
+tla:Badge rdf:type owl:Class ;
+    rdfs:label "Badge"@en ;
+    rdfs:comment "A digital badge representing an achievement or credential."@en ;
+    rdfs:subClassOf tla:Credential ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/tla> .
+
+tla:Certificate rdf:type owl:Class ;
+    rdfs:label "Certificate"@en ;
+    rdfs:comment "A formal certificate of completion or achievement."@en ;
+    rdfs:subClassOf tla:Credential ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/tla> .
+
+tla:Certification rdf:type owl:Class ;
+    rdfs:label "Certification"@en ;
+    rdfs:comment "A professional certification requiring ongoing maintenance."@en ;
+    rdfs:subClassOf tla:Credential ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/tla> .
+
+# =============================================================================
+# ASSESSMENT CLASSES
+# =============================================================================
+
+tla:Assessment rdf:type owl:Class ;
+    rdfs:label "Assessment"@en ;
+    rdfs:comment "An evaluation of learner competency."@en ;
+    rdfs:subClassOf xapi:Activity ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/tla> .
+
+tla:FormativeAssessment rdf:type owl:Class ;
+    rdfs:label "Formative Assessment"@en ;
+    rdfs:comment "An assessment used during learning for feedback."@en ;
+    rdfs:subClassOf tla:Assessment ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/tla> .
+
+tla:SummativeAssessment rdf:type owl:Class ;
+    rdfs:label "Summative Assessment"@en ;
+    rdfs:comment "An assessment used to evaluate learning outcomes."@en ;
+    rdfs:subClassOf tla:Assessment ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/tla> .
+
+tla:PerformanceAssessment rdf:type owl:Class ;
+    rdfs:label "Performance Assessment"@en ;
+    rdfs:comment "An assessment of demonstrated performance in context."@en ;
+    rdfs:subClassOf tla:Assessment ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/tla> .
+
+# =============================================================================
+# ORGANIZATIONAL CLASSES
+# =============================================================================
+
+tla:Organization rdf:type owl:Class ;
+    rdfs:label "Organization"@en ;
+    rdfs:comment "An organization involved in learning ecosystem."@en ;
+    rdfs:subClassOf xapi:Group ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/tla> .
+
+tla:LearningProvider rdf:type owl:Class ;
+    rdfs:label "Learning Provider"@en ;
+    rdfs:comment "An organization that provides learning content or experiences."@en ;
+    rdfs:subClassOf tla:Organization ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/tla> .
+
+tla:CredentialIssuer rdf:type owl:Class ;
+    rdfs:label "Credential Issuer"@en ;
+    rdfs:comment "An organization authorized to issue credentials."@en ;
+    rdfs:subClassOf tla:Organization ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/tla> .
+
+# =============================================================================
+# OBJECT PROPERTIES
+# =============================================================================
+
+# Competency Relations
+tla:hasCompetency rdf:type owl:ObjectProperty ;
+    rdfs:label "has competency"@en ;
+    rdfs:comment "Links a learner or activity to a competency."@en ;
+    rdfs:range tla:Competency ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/tla> .
+
+tla:assertsCompetency rdf:type owl:ObjectProperty ;
+    rdfs:label "asserts competency"@en ;
+    rdfs:comment "Links an assertion to the competency it claims."@en ;
+    rdfs:domain tla:CompetencyAssertion ;
+    rdfs:range tla:Competency ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/tla> .
+
+tla:competencyLevel rdf:type owl:ObjectProperty ;
+    rdfs:label "competency level"@en ;
+    rdfs:comment "The proficiency level of a competency assertion."@en ;
+    rdfs:domain tla:CompetencyAssertion ;
+    rdfs:range tla:CompetencyLevel ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/tla> .
+
+tla:requiresCompetency rdf:type owl:ObjectProperty ;
+    rdfs:label "requires competency"@en ;
+    rdfs:comment "Links an activity or role to required competencies."@en ;
+    rdfs:range tla:Competency ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/tla> .
+
+tla:developsCompetency rdf:type owl:ObjectProperty ;
+    rdfs:label "develops competency"@en ;
+    rdfs:comment "Links a learning activity to competencies it develops."@en ;
+    rdfs:domain xapi:Activity ;
+    rdfs:range tla:Competency ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/tla> .
+
+tla:assessesCompetency rdf:type owl:ObjectProperty ;
+    rdfs:label "assesses competency"@en ;
+    rdfs:comment "Links an assessment to competencies it evaluates."@en ;
+    rdfs:domain tla:Assessment ;
+    rdfs:range tla:Competency ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/tla> .
+
+# Framework Relations
+tla:inFramework rdf:type owl:ObjectProperty ;
+    rdfs:label "in framework"@en ;
+    rdfs:comment "Links a competency to its framework."@en ;
+    rdfs:domain tla:Competency ;
+    rdfs:range tla:CompetencyFramework ;
+    rdfs:subPropertyOf skos:inScheme ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/tla> .
+
+tla:parentCompetency rdf:type owl:ObjectProperty ;
+    rdfs:label "parent competency"@en ;
+    rdfs:comment "Links a competency to its parent in a hierarchy."@en ;
+    rdfs:domain tla:Competency ;
+    rdfs:range tla:Competency ;
+    rdfs:subPropertyOf skos:broader ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/tla> .
+
+tla:childCompetency rdf:type owl:ObjectProperty ;
+    rdfs:label "child competency"@en ;
+    rdfs:comment "Links a competency to its children."@en ;
+    rdfs:domain tla:Competency ;
+    rdfs:range tla:Competency ;
+    rdfs:subPropertyOf skos:narrower ;
+    owl:inverseOf tla:parentCompetency ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/tla> .
+
+# Learning Path Relations
+tla:partOfPath rdf:type owl:ObjectProperty ;
+    rdfs:label "part of path"@en ;
+    rdfs:comment "Links an activity to a learning path."@en ;
+    rdfs:domain xapi:Activity ;
+    rdfs:range tla:LearningPath ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/tla> .
+
+tla:nextActivity rdf:type owl:ObjectProperty ;
+    rdfs:label "next activity"@en ;
+    rdfs:comment "Links to the next activity in a sequence."@en ;
+    rdfs:domain xapi:Activity ;
+    rdfs:range xapi:Activity ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/tla> .
+
+tla:prerequisiteActivity rdf:type owl:ObjectProperty ;
+    rdfs:label "prerequisite activity"@en ;
+    rdfs:comment "Links to an activity that must be completed first."@en ;
+    rdfs:domain xapi:Activity ;
+    rdfs:range xapi:Activity ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/tla> .
+
+# Credential Relations
+tla:earnsCredential rdf:type owl:ObjectProperty ;
+    rdfs:label "earns credential"@en ;
+    rdfs:comment "Links successful completion to a credential."@en ;
+    rdfs:domain xapi:Result ;
+    rdfs:range tla:Credential ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/tla> .
+
+tla:issuedBy rdf:type owl:ObjectProperty ;
+    rdfs:label "issued by"@en ;
+    rdfs:comment "Links a credential to its issuing organization."@en ;
+    rdfs:domain tla:Credential ;
+    rdfs:range tla:CredentialIssuer ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/tla> .
+
+tla:validatesCompetency rdf:type owl:ObjectProperty ;
+    rdfs:label "validates competency"@en ;
+    rdfs:comment "Links a credential to competencies it validates."@en ;
+    rdfs:domain tla:Credential ;
+    rdfs:range tla:Competency ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/tla> .
+
+# Career Relations
+tla:currentRole rdf:type owl:ObjectProperty ;
+    rdfs:label "current role"@en ;
+    rdfs:comment "Links a learner to their current job role."@en ;
+    rdfs:domain xapi:Agent ;
+    rdfs:range tla:JobRole ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/tla> .
+
+tla:targetRole rdf:type owl:ObjectProperty ;
+    rdfs:label "target role"@en ;
+    rdfs:comment "Links a learner to their career goal role."@en ;
+    rdfs:domain xapi:Agent ;
+    rdfs:range tla:JobRole ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/tla> .
+
+tla:roleInPath rdf:type owl:ObjectProperty ;
+    rdfs:label "role in path"@en ;
+    rdfs:comment "Links a job role to a career path."@en ;
+    rdfs:domain tla:JobRole ;
+    rdfs:range tla:CareerPath ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/tla> .
+
+# =============================================================================
+# DATATYPE PROPERTIES
+# =============================================================================
+
+tla:confidenceLevel rdf:type owl:DatatypeProperty ;
+    rdfs:label "confidence level"@en ;
+    rdfs:comment "Confidence score for a competency assertion (0-1)."@en ;
+    rdfs:domain tla:CompetencyAssertion ;
+    rdfs:range xsd:decimal ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/tla> .
+
+tla:assertionDate rdf:type owl:DatatypeProperty ;
+    rdfs:label "assertion date"@en ;
+    rdfs:comment "When the competency was asserted."@en ;
+    rdfs:domain tla:CompetencyAssertion ;
+    rdfs:range xsd:dateTime ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/tla> .
+
+tla:expirationDate rdf:type owl:DatatypeProperty ;
+    rdfs:label "expiration date"@en ;
+    rdfs:comment "When a credential or assertion expires."@en ;
+    rdfs:range xsd:dateTime ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/tla> .
+
+tla:evidenceUrl rdf:type owl:DatatypeProperty ;
+    rdfs:label "evidence URL"@en ;
+    rdfs:comment "Link to evidence supporting an assertion."@en ;
+    rdfs:domain tla:CompetencyAssertion ;
+    rdfs:range xsd:anyURI ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/tla> .
+
+tla:sequenceOrder rdf:type owl:DatatypeProperty ;
+    rdfs:label "sequence order"@en ;
+    rdfs:comment "Position in a learning path sequence."@en ;
+    rdfs:range xsd:integer ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/tla> .
+
+tla:estimatedDuration rdf:type owl:DatatypeProperty ;
+    rdfs:label "estimated duration"@en ;
+    rdfs:comment "Expected time to complete (ISO 8601 duration)."@en ;
+    rdfs:range xsd:duration ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/tla> .
+
+# =============================================================================
+# TLA-SPECIFIC VERBS (as OWL individuals)
+# =============================================================================
+
+tla:VerbScheme rdf:type skos:ConceptScheme ;
+    rdfs:label "TLA Verb Vocabulary"@en .
+
+tla:asserted rdf:type xapi:Verb, skos:Concept ;
+    rdfs:label "asserted"@en ;
+    xapi:verbId <https://w3id.org/xapi/tla/verbs/asserted> ;
+    skos:prefLabel "asserted"@en ;
+    skos:definition "Indicates a competency was asserted for a learner."@en ;
+    skos:inScheme tla:VerbScheme .
+
+tla:conferred rdf:type xapi:Verb, skos:Concept ;
+    rdfs:label "conferred"@en ;
+    xapi:verbId <https://w3id.org/xapi/tla/verbs/conferred> ;
+    skos:prefLabel "conferred"@en ;
+    skos:definition "Indicates a credential was conferred to a learner."@en ;
+    skos:inScheme tla:VerbScheme .
+
+tla:qualified rdf:type xapi:Verb, skos:Concept ;
+    rdfs:label "qualified"@en ;
+    xapi:verbId <https://w3id.org/xapi/tla/verbs/qualified> ;
+    skos:prefLabel "qualified"@en ;
+    skos:definition "Indicates a learner qualified for a role or credential."@en ;
+    skos:inScheme tla:VerbScheme .
+
+tla:recommended rdf:type xapi:Verb, skos:Concept ;
+    rdfs:label "recommended"@en ;
+    xapi:verbId <https://w3id.org/xapi/tla/verbs/recommended> ;
+    skos:prefLabel "recommended"@en ;
+    skos:definition "Indicates a learning activity was recommended."@en ;
+    skos:inScheme tla:VerbScheme .
+
+tla:requested rdf:type xapi:Verb, skos:Concept ;
+    rdfs:label "requested"@en ;
+    xapi:verbId <https://w3id.org/xapi/tla/verbs/requested> ;
+    skos:prefLabel "requested"@en ;
+    skos:definition "Indicates a learner requested a resource or activity."@en ;
+    skos:inScheme tla:VerbScheme .
+
+tla:approved rdf:type xapi:Verb, skos:Concept ;
+    rdfs:label "approved"@en ;
+    xapi:verbId <https://w3id.org/xapi/tla/verbs/approved> ;
+    skos:prefLabel "approved"@en ;
+    skos:definition "Indicates a request was approved."@en ;
+    skos:inScheme tla:VerbScheme .
+
+tla:augmented rdf:type xapi:Verb, skos:Concept ;
+    rdfs:label "augmented"@en ;
+    xapi:verbId <https://w3id.org/xapi/tla/verbs/augmented> ;
+    skos:prefLabel "augmented"@en ;
+    skos:definition "Indicates additional context was provided."@en ;
+    skos:inScheme tla:VerbScheme .
+
+tla:explored rdf:type xapi:Verb, skos:Concept ;
+    rdfs:label "explored"@en ;
+    xapi:verbId <https://w3id.org/xapi/tla/verbs/explored> ;
+    skos:prefLabel "explored"@en ;
+    skos:definition "Indicates a learner explored a resource."@en ;
+    skos:inScheme tla:VerbScheme .
+
+tla:clarified rdf:type xapi:Verb, skos:Concept ;
+    rdfs:label "clarified"@en ;
+    xapi:verbId <https://w3id.org/xapi/tla/verbs/clarified> ;
+    skos:prefLabel "clarified"@en ;
+    skos:definition "Indicates a concept was clarified for a learner."@en ;
+    skos:inScheme tla:VerbScheme .
+
+tla:directed rdf:type xapi:Verb, skos:Concept ;
+    rdfs:label "directed"@en ;
+    xapi:verbId <https://w3id.org/xapi/tla/verbs/directed> ;
+    skos:prefLabel "directed"@en ;
+    skos:definition "Indicates a learner was directed to a resource."@en ;
+    skos:inScheme tla:VerbScheme .
+
+tla:scheduled rdf:type xapi:Verb, skos:Concept ;
+    rdfs:label "scheduled"@en ;
+    xapi:verbId <https://w3id.org/xapi/tla/verbs/scheduled> ;
+    skos:prefLabel "scheduled"@en ;
+    skos:definition "Indicates an activity was scheduled."@en ;
+    skos:inScheme tla:VerbScheme .
+
+tla:projected rdf:type xapi:Verb, skos:Concept ;
+    rdfs:label "projected"@en ;
+    xapi:verbId <https://w3id.org/xapi/tla/verbs/projected> ;
+    skos:prefLabel "projected"@en ;
+    skos:definition "Indicates a learning outcome was projected."@en ;
+    skos:inScheme tla:VerbScheme .
+
+# =============================================================================
+# TLA ACTIVITY TYPES (as OWL individuals)
+# =============================================================================
+
+tla:ActivityTypeScheme rdf:type skos:ConceptScheme ;
+    rdfs:label "TLA Activity Type Vocabulary"@en .
+
+tla:CompetencyActivityType rdf:type xapi:ActivityType, skos:Concept ;
+    rdfs:label "competency"@en ;
+    skos:prefLabel "competency"@en ;
+    skos:definition "An activity representing a competency."@en ;
+    skos:inScheme tla:ActivityTypeScheme .
+
+tla:AssessmentActivityType rdf:type xapi:ActivityType, skos:Concept ;
+    rdfs:label "assessment"@en ;
+    skos:prefLabel "assessment"@en ;
+    skos:definition "An activity representing an assessment."@en ;
+    skos:inScheme tla:ActivityTypeScheme .
+
+tla:CareerActivityType rdf:type xapi:ActivityType, skos:Concept ;
+    rdfs:label "career"@en ;
+    skos:prefLabel "career"@en ;
+    skos:definition "An activity related to career development."@en ;
+    skos:inScheme tla:ActivityTypeScheme .
+
+tla:CredentialActivityType rdf:type xapi:ActivityType, skos:Concept ;
+    rdfs:label "credential"@en ;
+    skos:prefLabel "credential"@en ;
+    skos:definition "An activity representing a credential."@en ;
+    skos:inScheme tla:ActivityTypeScheme .
+
+tla:JobActivityType rdf:type xapi:ActivityType, skos:Concept ;
+    rdfs:label "job"@en ;
+    skos:prefLabel "job"@en ;
+    skos:definition "An activity related to a job task."@en ;
+    skos:inScheme tla:ActivityTypeScheme .

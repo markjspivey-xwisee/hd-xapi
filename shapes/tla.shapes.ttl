@@ -1,0 +1,637 @@
+@prefix : <https://w3id.org/xapi/tla/shapes#> .
+@prefix tla: <https://w3id.org/xapi/tla#> .
+@prefix xapi: <https://w3id.org/xapi/ontology#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+@base <https://w3id.org/xapi/tla/shapes> .
+
+# =============================================================================
+# SHAPES GRAPH METADATA
+# =============================================================================
+
+<https://w3id.org/xapi/tla/shapes> a sh:ShapesGraph ;
+    dcterms:title "TLA Profile SHACL Shapes"@en ;
+    dcterms:description "SHACL shapes for validating TLA-specific xAPI statements and inference rules for competency management."@en ;
+    dcterms:creator "HD-XAPI Project" ;
+    dcterms:license <https://opensource.org/licenses/MIT> ;
+    dcterms:created "2026-01-07"^^xsd:date ;
+    sh:declare [
+        sh:prefix "tla" ;
+        sh:namespace "https://w3id.org/xapi/tla#"^^xsd:anyURI
+    ] , [
+        sh:prefix "xapi" ;
+        sh:namespace "https://w3id.org/xapi/ontology#"^^xsd:anyURI
+    ] .
+
+# =============================================================================
+# COMPETENCY VALIDATION SHAPES
+# =============================================================================
+
+:CompetencyShape a sh:NodeShape ;
+    sh:targetClass tla:Competency ;
+    rdfs:label "Competency Shape"@en ;
+
+    sh:property [
+        sh:path skos:prefLabel ;
+        sh:name "label" ;
+        sh:minCount 1 ;
+        sh:datatype rdf:langString ;
+        sh:message "Competency must have at least one label."
+    ] ;
+
+    sh:property [
+        sh:path skos:definition ;
+        sh:name "definition" ;
+        sh:datatype rdf:langString ;
+    ] ;
+
+    sh:property [
+        sh:path tla:inFramework ;
+        sh:name "framework" ;
+        sh:class tla:CompetencyFramework ;
+    ] ;
+
+    sh:property [
+        sh:path tla:parentCompetency ;
+        sh:name "parent" ;
+        sh:class tla:Competency ;
+    ] ;
+
+    sh:property [
+        sh:path skos:notation ;
+        sh:name "code" ;
+        sh:datatype xsd:string ;
+        sh:message "Competency code must be a string."
+    ] .
+
+:CompetencyFrameworkShape a sh:NodeShape ;
+    sh:targetClass tla:CompetencyFramework ;
+    rdfs:label "Competency Framework Shape"@en ;
+
+    sh:property [
+        sh:path dcterms:title ;
+        sh:name "title" ;
+        sh:minCount 1 ;
+        sh:datatype rdf:langString ;
+        sh:message "Framework must have a title."
+    ] ;
+
+    sh:property [
+        sh:path dcterms:publisher ;
+        sh:name "publisher" ;
+        sh:maxCount 1 ;
+    ] ;
+
+    sh:property [
+        sh:path dcterms:created ;
+        sh:name "created" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:date ;
+    ] .
+
+:CompetencyAssertionShape a sh:NodeShape ;
+    sh:targetClass tla:CompetencyAssertion ;
+    rdfs:label "Competency Assertion Shape"@en ;
+
+    sh:property [
+        sh:path tla:assertsCompetency ;
+        sh:name "competency" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class tla:Competency ;
+        sh:message "Assertion must reference exactly one competency."
+    ] ;
+
+    sh:property [
+        sh:path tla:competencyLevel ;
+        sh:name "level" ;
+        sh:maxCount 1 ;
+        sh:class tla:CompetencyLevel ;
+    ] ;
+
+    sh:property [
+        sh:path tla:confidenceLevel ;
+        sh:name "confidence" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Confidence must be between 0 and 1."
+    ] ;
+
+    sh:property [
+        sh:path tla:assertionDate ;
+        sh:name "date" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:dateTime ;
+        sh:message "Assertion must have a date."
+    ] ;
+
+    sh:property [
+        sh:path tla:evidenceUrl ;
+        sh:name "evidence" ;
+        sh:nodeKind sh:IRI ;
+    ] ;
+
+    sh:property [
+        sh:path tla:expirationDate ;
+        sh:name "expiration" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:dateTime ;
+    ] .
+
+# =============================================================================
+# CREDENTIAL VALIDATION SHAPES
+# =============================================================================
+
+:CredentialShape a sh:NodeShape ;
+    sh:targetClass tla:Credential ;
+    rdfs:label "Credential Shape"@en ;
+
+    sh:property [
+        sh:path dcterms:title ;
+        sh:name "title" ;
+        sh:minCount 1 ;
+        sh:datatype rdf:langString ;
+        sh:message "Credential must have a title."
+    ] ;
+
+    sh:property [
+        sh:path tla:issuedBy ;
+        sh:name "issuer" ;
+        sh:minCount 1 ;
+        sh:class tla:CredentialIssuer ;
+        sh:message "Credential must have an issuer."
+    ] ;
+
+    sh:property [
+        sh:path tla:validatesCompetency ;
+        sh:name "competencies" ;
+        sh:class tla:Competency ;
+    ] ;
+
+    sh:property [
+        sh:path tla:expirationDate ;
+        sh:name "expiration" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:dateTime ;
+    ] .
+
+:BadgeShape a sh:NodeShape ;
+    sh:targetClass tla:Badge ;
+    rdfs:label "Badge Shape"@en ;
+
+    sh:property [
+        sh:path <http://openbadgespec.org/v2/image> ;
+        sh:name "image" ;
+        sh:nodeKind sh:IRI ;
+    ] ;
+
+    sh:property [
+        sh:path <http://openbadgespec.org/v2/criteria> ;
+        sh:name "criteria" ;
+        sh:nodeKind sh:IRI ;
+    ] .
+
+# =============================================================================
+# LEARNING PATH VALIDATION SHAPES
+# =============================================================================
+
+:LearningPathShape a sh:NodeShape ;
+    sh:targetClass tla:LearningPath ;
+    rdfs:label "Learning Path Shape"@en ;
+
+    sh:property [
+        sh:path xapi:name ;
+        sh:name "name" ;
+        sh:minCount 1 ;
+        sh:datatype rdf:langString ;
+        sh:message "Learning path must have a name."
+    ] ;
+
+    sh:property [
+        sh:path tla:developsCompetency ;
+        sh:name "competencies" ;
+        sh:minCount 1 ;
+        sh:class tla:Competency ;
+        sh:message "Learning path must develop at least one competency."
+    ] ;
+
+    sh:property [
+        sh:path tla:estimatedDuration ;
+        sh:name "duration" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:duration ;
+    ] .
+
+:JobRoleShape a sh:NodeShape ;
+    sh:targetClass tla:JobRole ;
+    rdfs:label "Job Role Shape"@en ;
+
+    sh:property [
+        sh:path rdfs:label ;
+        sh:name "title" ;
+        sh:minCount 1 ;
+        sh:datatype rdf:langString ;
+        sh:message "Job role must have a title."
+    ] ;
+
+    sh:property [
+        sh:path tla:requiresCompetency ;
+        sh:name "requirements" ;
+        sh:class tla:Competency ;
+    ] .
+
+# =============================================================================
+# TLA STATEMENT VALIDATION SHAPES
+# =============================================================================
+
+:TLAAssertedStatementShape a sh:NodeShape ;
+    rdfs:label "TLA Asserted Statement Shape"@en ;
+    rdfs:comment "Shape for statements using the 'asserted' verb."@en ;
+    sh:target [
+        a sh:SPARQLTarget ;
+        sh:prefixes <https://w3id.org/xapi/tla/shapes> ;
+        sh:select """
+            SELECT ?this
+            WHERE {
+                ?this a xapi:Statement ;
+                      xapi:verb/xapi:verbId <https://w3id.org/xapi/tla/verbs/asserted> .
+            }
+        """
+    ] ;
+
+    # Object must be a competency
+    sh:property [
+        sh:path xapi:object ;
+        sh:name "object" ;
+        sh:class tla:Competency ;
+        sh:message "Asserted statement object must be a Competency."
+    ] ;
+
+    # Must have result with success or extensions containing assertion data
+    sh:or (
+        [
+            sh:property [
+                sh:path ( xapi:result xapi:success ) ;
+                sh:minCount 1 ;
+                sh:datatype xsd:boolean
+            ]
+        ]
+        [
+            sh:property [
+                sh:path ( xapi:result tla:confidenceLevel ) ;
+                sh:minCount 1
+            ]
+        ]
+    ) ;
+    sh:message "Asserted statement must have result with success or confidence level." .
+
+:TLAConferredStatementShape a sh:NodeShape ;
+    rdfs:label "TLA Conferred Statement Shape"@en ;
+    rdfs:comment "Shape for statements using the 'conferred' verb."@en ;
+    sh:target [
+        a sh:SPARQLTarget ;
+        sh:prefixes <https://w3id.org/xapi/tla/shapes> ;
+        sh:select """
+            SELECT ?this
+            WHERE {
+                ?this a xapi:Statement ;
+                      xapi:verb/xapi:verbId <https://w3id.org/xapi/tla/verbs/conferred> .
+            }
+        """
+    ] ;
+
+    # Object must be a credential
+    sh:property [
+        sh:path xapi:object ;
+        sh:name "object" ;
+        sh:or (
+            [ sh:class tla:Credential ]
+            [ sh:class tla:Badge ]
+            [ sh:class tla:Certificate ]
+            [ sh:class tla:Certification ]
+        ) ;
+        sh:message "Conferred statement object must be a Credential."
+    ] ;
+
+    # Authority should be the credential issuer
+    sh:property [
+        sh:path xapi:authority ;
+        sh:name "authority" ;
+        sh:minCount 1 ;
+        sh:message "Conferred statement must have an authority (issuer)."
+    ] .
+
+:TLAQualifiedStatementShape a sh:NodeShape ;
+    rdfs:label "TLA Qualified Statement Shape"@en ;
+    rdfs:comment "Shape for statements using the 'qualified' verb."@en ;
+    sh:target [
+        a sh:SPARQLTarget ;
+        sh:prefixes <https://w3id.org/xapi/tla/shapes> ;
+        sh:select """
+            SELECT ?this
+            WHERE {
+                ?this a xapi:Statement ;
+                      xapi:verb/xapi:verbId <https://w3id.org/xapi/tla/verbs/qualified> .
+            }
+        """
+    ] ;
+
+    # Object must be a job role or credential
+    sh:property [
+        sh:path xapi:object ;
+        sh:name "object" ;
+        sh:or (
+            [ sh:class tla:JobRole ]
+            [ sh:class tla:Credential ]
+        ) ;
+        sh:message "Qualified statement object must be a JobRole or Credential."
+    ] .
+
+# =============================================================================
+# TLA INFERENCE RULES
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Rule: Generate Competency Assertion from Successful Assessment
+# -----------------------------------------------------------------------------
+
+:AssessmentToCompetencyRule a sh:NodeShape ;
+    rdfs:label "Assessment to Competency Assertion Rule"@en ;
+    rdfs:comment "Generates competency assertion when assessment is successfully completed."@en ;
+    sh:target [
+        a sh:SPARQLTarget ;
+        sh:prefixes <https://w3id.org/xapi/tla/shapes> ;
+        sh:select """
+            SELECT ?this
+            WHERE {
+                ?this a xapi:Statement ;
+                      xapi:object ?assessment ;
+                      xapi:result ?result .
+                ?assessment a tla:Assessment ;
+                            tla:assessesCompetency ?competency .
+                ?result xapi:success true .
+                FILTER NOT EXISTS {
+                    ?assertion tla:assertsCompetency ?competency ;
+                               prov:wasGeneratedBy ?this .
+                }
+            }
+        """
+    ] ;
+    sh:rule [
+        a sh:SPARQLRule ;
+        sh:prefixes <https://w3id.org/xapi/tla/shapes> ;
+        sh:construct """
+            CONSTRUCT {
+                _:assertion a tla:CompetencyAssertion ;
+                    tla:assertsCompetency ?competency ;
+                    tla:assertionDate ?timestamp ;
+                    prov:wasGeneratedBy ?this ;
+                    prov:wasAttributedTo ?actor ;
+                    tla:confidenceLevel ?confidence .
+            }
+            WHERE {
+                ?this xapi:actor ?actor ;
+                      xapi:object ?assessment ;
+                      xapi:result ?result ;
+                      xapi:timestamp ?timestamp .
+                ?assessment tla:assessesCompetency ?competency .
+                ?result xapi:success true .
+                OPTIONAL {
+                    ?result xapi:score/xapi:scaled ?scaled .
+                    BIND(?scaled AS ?confidence)
+                }
+                BIND(COALESCE(?confidence, 0.8) AS ?confidence)
+            }
+        """
+    ] .
+
+# -----------------------------------------------------------------------------
+# Rule: Credential Qualification Check
+# -----------------------------------------------------------------------------
+
+:CredentialQualificationRule a sh:NodeShape ;
+    rdfs:label "Credential Qualification Rule"@en ;
+    rdfs:comment "Generates qualification status when all required competencies are met."@en ;
+    sh:target [
+        a sh:SPARQLTarget ;
+        sh:prefixes <https://w3id.org/xapi/tla/shapes> ;
+        sh:select """
+            SELECT ?learner ?credential
+            WHERE {
+                ?credential a tla:Credential ;
+                            tla:validatesCompetency ?required .
+                ?assertion tla:assertsCompetency ?required ;
+                           prov:wasAttributedTo ?learner .
+                # Check all required competencies are asserted
+                FILTER NOT EXISTS {
+                    ?credential tla:validatesCompetency ?missing .
+                    FILTER NOT EXISTS {
+                        ?otherAssertion tla:assertsCompetency ?missing ;
+                                        prov:wasAttributedTo ?learner .
+                    }
+                }
+                FILTER NOT EXISTS {
+                    ?learner :qualifiedFor ?credential .
+                }
+            }
+        """
+    ] ;
+    sh:rule [
+        a sh:SPARQLRule ;
+        sh:prefixes <https://w3id.org/xapi/tla/shapes> ;
+        sh:construct """
+            CONSTRUCT {
+                ?learner :qualifiedFor ?credential ;
+                         :qualificationDate ?now .
+            }
+            WHERE {
+                ?credential a tla:Credential .
+                ?assertion prov:wasAttributedTo ?learner .
+                BIND(NOW() AS ?now)
+            }
+        """
+    ] .
+
+# -----------------------------------------------------------------------------
+# Rule: Learning Path Recommendation
+# -----------------------------------------------------------------------------
+
+:LearningPathRecommendationRule a sh:NodeShape ;
+    rdfs:label "Learning Path Recommendation Rule"@en ;
+    rdfs:comment "Recommends learning paths based on competency gaps."@en ;
+    sh:target [
+        a sh:SPARQLTarget ;
+        sh:prefixes <https://w3id.org/xapi/tla/shapes> ;
+        sh:select """
+            SELECT ?learner ?targetRole
+            WHERE {
+                ?learner tla:targetRole ?targetRole .
+                ?targetRole tla:requiresCompetency ?required .
+                FILTER NOT EXISTS {
+                    ?assertion tla:assertsCompetency ?required ;
+                               prov:wasAttributedTo ?learner .
+                }
+            }
+        """
+    ] ;
+    sh:rule [
+        a sh:SPARQLRule ;
+        sh:prefixes <https://w3id.org/xapi/tla/shapes> ;
+        sh:construct """
+            CONSTRUCT {
+                ?learner :recommendedPath ?path ;
+                         :competencyGap ?required .
+            }
+            WHERE {
+                ?learner tla:targetRole ?targetRole .
+                ?targetRole tla:requiresCompetency ?required .
+                ?path tla:developsCompetency ?required .
+                FILTER NOT EXISTS {
+                    ?assertion tla:assertsCompetency ?required ;
+                               prov:wasAttributedTo ?learner .
+                }
+            }
+        """
+    ] .
+
+# -----------------------------------------------------------------------------
+# Rule: Competency Decay Tracking
+# -----------------------------------------------------------------------------
+
+:CompetencyDecayRule a sh:NodeShape ;
+    rdfs:label "Competency Decay Rule"@en ;
+    rdfs:comment "Flags competency assertions that may need refreshing."@en ;
+    sh:target [
+        a sh:SPARQLTarget ;
+        sh:prefixes <https://w3id.org/xapi/tla/shapes> ;
+        sh:select """
+            SELECT ?assertion
+            WHERE {
+                ?assertion a tla:CompetencyAssertion ;
+                           tla:assertionDate ?date .
+                FILTER (?date < (NOW() - "P365D"^^xsd:duration))
+                FILTER NOT EXISTS { ?assertion :decayWarning true }
+            }
+        """
+    ] ;
+    sh:rule [
+        a sh:SPARQLRule ;
+        sh:prefixes <https://w3id.org/xapi/tla/shapes> ;
+        sh:construct """
+            CONSTRUCT {
+                ?assertion :decayWarning true ;
+                           :decayFlaggedDate ?now .
+            }
+            WHERE {
+                ?assertion a tla:CompetencyAssertion .
+                BIND(NOW() AS ?now)
+            }
+        """
+    ] .
+
+# -----------------------------------------------------------------------------
+# Rule: Career Progress Tracking
+# -----------------------------------------------------------------------------
+
+:CareerProgressRule a sh:NodeShape ;
+    rdfs:label "Career Progress Rule"@en ;
+    rdfs:comment "Calculates progress towards target role."@en ;
+    sh:target [
+        a sh:SPARQLTarget ;
+        sh:prefixes <https://w3id.org/xapi/tla/shapes> ;
+        sh:select """
+            SELECT ?learner ?targetRole
+            WHERE {
+                ?learner tla:targetRole ?targetRole .
+            }
+        """
+    ] ;
+    sh:rule [
+        a sh:SPARQLRule ;
+        sh:prefixes <https://w3id.org/xapi/tla/shapes> ;
+        sh:construct """
+            CONSTRUCT {
+                ?learner :careerProgress [
+                    :targetRole ?targetRole ;
+                    :competenciesRequired ?totalRequired ;
+                    :competenciesAchieved ?achieved ;
+                    :progressPercent ?percent
+                ] .
+            }
+            WHERE {
+                {
+                    SELECT ?learner ?targetRole
+                           (COUNT(DISTINCT ?required) AS ?totalRequired)
+                           (COUNT(DISTINCT ?achievedComp) AS ?achieved)
+                    WHERE {
+                        ?learner tla:targetRole ?targetRole .
+                        ?targetRole tla:requiresCompetency ?required .
+                        OPTIONAL {
+                            ?assertion tla:assertsCompetency ?required ;
+                                       prov:wasAttributedTo ?learner .
+                            BIND(?required AS ?achievedComp)
+                        }
+                    }
+                    GROUP BY ?learner ?targetRole
+                }
+                BIND((?achieved / ?totalRequired) * 100 AS ?percent)
+            }
+        """
+    ] .
+
+# =============================================================================
+# HELPER PROPERTIES FOR TLA RULES
+# =============================================================================
+
+:qualifiedFor a rdf:Property ;
+    rdfs:label "qualified for"@en ;
+    rdfs:comment "Links learner to credentials they qualify for."@en .
+
+:qualificationDate a rdf:Property ;
+    rdfs:label "qualification date"@en ;
+    rdfs:comment "When the qualification was determined."@en .
+
+:recommendedPath a rdf:Property ;
+    rdfs:label "recommended path"@en ;
+    rdfs:comment "Links learner to recommended learning paths."@en .
+
+:competencyGap a rdf:Property ;
+    rdfs:label "competency gap"@en ;
+    rdfs:comment "Links learner to missing competencies."@en .
+
+:decayWarning a rdf:Property ;
+    rdfs:label "decay warning"@en ;
+    rdfs:comment "Flag indicating competency may need refreshing."@en .
+
+:decayFlaggedDate a rdf:Property ;
+    rdfs:label "decay flagged date"@en ;
+    rdfs:comment "When the decay warning was flagged."@en .
+
+:careerProgress a rdf:Property ;
+    rdfs:label "career progress"@en ;
+    rdfs:comment "Links learner to career progress summary."@en .
+
+:targetRole a rdf:Property ;
+    rdfs:label "target role"@en ;
+    rdfs:comment "The role being tracked for progress."@en .
+
+:competenciesRequired a rdf:Property ;
+    rdfs:label "competencies required"@en ;
+    rdfs:comment "Number of competencies required."@en .
+
+:competenciesAchieved a rdf:Property ;
+    rdfs:label "competencies achieved"@en ;
+    rdfs:comment "Number of competencies achieved."@en .
+
+:progressPercent a rdf:Property ;
+    rdfs:label "progress percent"@en ;
+    rdfs:comment "Percentage progress towards goal."@en .

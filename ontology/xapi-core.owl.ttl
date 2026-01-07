@@ -1,0 +1,720 @@
+@prefix : <https://w3id.org/xapi/ontology#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix schema: <http://schema.org/> .
+
+@base <https://w3id.org/xapi/ontology> .
+
+# =============================================================================
+# ONTOLOGY METADATA
+# =============================================================================
+
+<https://w3id.org/xapi/ontology> rdf:type owl:Ontology ;
+    owl:versionIRI <https://w3id.org/xapi/ontology/1.0.0> ;
+    dcterms:title "xAPI Core Ontology"@en ;
+    dcterms:description "OWL ontology for the Experience API (xAPI) specification, providing semantic definitions for learning activity statements."@en ;
+    dcterms:creator "HD-XAPI Project" ;
+    dcterms:license <https://opensource.org/licenses/MIT> ;
+    dcterms:created "2026-01-07"^^xsd:date ;
+    owl:versionInfo "1.0.0" ;
+    rdfs:seeAlso <https://github.com/adlnet/xAPI-Spec> .
+
+# =============================================================================
+# CORE CLASSES
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Statement
+# -----------------------------------------------------------------------------
+
+:Statement rdf:type owl:Class ;
+    rdfs:label "Statement"@en ;
+    rdfs:comment "A record of a learning experience, containing an actor, verb, and object at minimum."@en ;
+    rdfs:subClassOf prov:Activity ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+:SubStatement rdf:type owl:Class ;
+    rdfs:label "SubStatement"@en ;
+    rdfs:comment "A Statement included as the object of another Statement, used for voiding or referencing."@en ;
+    rdfs:subClassOf :Statement ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+# -----------------------------------------------------------------------------
+# Actor Classes
+# -----------------------------------------------------------------------------
+
+:Actor rdf:type owl:Class ;
+    rdfs:label "Actor"@en ;
+    rdfs:comment "The entity performing the action described in a Statement. Can be an Agent or a Group."@en ;
+    rdfs:subClassOf prov:Agent, foaf:Agent ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+:Agent rdf:type owl:Class ;
+    rdfs:label "Agent"@en ;
+    rdfs:comment "An individual person or system identified by an inverse functional identifier."@en ;
+    rdfs:subClassOf :Actor ;
+    owl:disjointWith :Group ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+:Group rdf:type owl:Class ;
+    rdfs:label "Group"@en ;
+    rdfs:comment "A collection of Agents. Can be identified (with IFI) or anonymous (members only)."@en ;
+    rdfs:subClassOf :Actor ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+:AnonymousGroup rdf:type owl:Class ;
+    rdfs:label "Anonymous Group"@en ;
+    rdfs:comment "A Group identified only by its members, without an inverse functional identifier."@en ;
+    rdfs:subClassOf :Group ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+:IdentifiedGroup rdf:type owl:Class ;
+    rdfs:label "Identified Group"@en ;
+    rdfs:comment "A Group with an inverse functional identifier."@en ;
+    rdfs:subClassOf :Group ;
+    owl:disjointWith :AnonymousGroup ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+# -----------------------------------------------------------------------------
+# Account (for Agent identification)
+# -----------------------------------------------------------------------------
+
+:Account rdf:type owl:Class ;
+    rdfs:label "Account"@en ;
+    rdfs:comment "A user account on an existing system (e.g., LMS, social network)."@en ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+# -----------------------------------------------------------------------------
+# Verb
+# -----------------------------------------------------------------------------
+
+:Verb rdf:type owl:Class ;
+    rdfs:label "Verb"@en ;
+    rdfs:comment "The action performed by the Actor in a Statement."@en ;
+    rdfs:subClassOf skos:Concept ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+# -----------------------------------------------------------------------------
+# Object Classes (what the action was performed on)
+# -----------------------------------------------------------------------------
+
+:StatementObject rdf:type owl:Class ;
+    rdfs:label "Statement Object"@en ;
+    rdfs:comment "The thing the Actor interacted with. Can be an Activity, Agent, Group, or StatementRef."@en ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+:Activity rdf:type owl:Class ;
+    rdfs:label "Activity"@en ;
+    rdfs:comment "A learning activity or content that the Actor interacted with."@en ;
+    rdfs:subClassOf :StatementObject, prov:Entity ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+:ActivityDefinition rdf:type owl:Class ;
+    rdfs:label "Activity Definition"@en ;
+    rdfs:comment "Metadata about an Activity including name, description, and type."@en ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+:ActivityType rdf:type owl:Class ;
+    rdfs:label "Activity Type"@en ;
+    rdfs:comment "A classification of Activity (e.g., course, module, assessment)."@en ;
+    rdfs:subClassOf skos:Concept ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+:StatementRef rdf:type owl:Class ;
+    rdfs:label "Statement Reference"@en ;
+    rdfs:comment "A reference to another Statement by its ID, used for voiding or referencing."@en ;
+    rdfs:subClassOf :StatementObject ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+# -----------------------------------------------------------------------------
+# Result
+# -----------------------------------------------------------------------------
+
+:Result rdf:type owl:Class ;
+    rdfs:label "Result"@en ;
+    rdfs:comment "The outcome of the Actor's interaction with the Activity."@en ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+:Score rdf:type owl:Class ;
+    rdfs:label "Score"@en ;
+    rdfs:comment "A numerical result of an assessment or interaction."@en ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+# -----------------------------------------------------------------------------
+# Context
+# -----------------------------------------------------------------------------
+
+:Context rdf:type owl:Class ;
+    rdfs:label "Context"@en ;
+    rdfs:comment "Situational information for a Statement including instructor, team, and related activities."@en ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+:ContextActivities rdf:type owl:Class ;
+    rdfs:label "Context Activities"@en ;
+    rdfs:comment "Activities related to the Statement's primary Activity."@en ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+# -----------------------------------------------------------------------------
+# Authority
+# -----------------------------------------------------------------------------
+
+:Authority rdf:type owl:Class ;
+    rdfs:label "Authority"@en ;
+    rdfs:comment "The entity asserting the Statement is true. Typically set by the LRS."@en ;
+    rdfs:subClassOf :Actor ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+# -----------------------------------------------------------------------------
+# Attachment
+# -----------------------------------------------------------------------------
+
+:Attachment rdf:type owl:Class ;
+    rdfs:label "Attachment"@en ;
+    rdfs:comment "A file or document attached to a Statement."@en ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+# -----------------------------------------------------------------------------
+# Extension
+# -----------------------------------------------------------------------------
+
+:Extension rdf:type owl:Class ;
+    rdfs:label "Extension"@en ;
+    rdfs:comment "A custom extension to a Statement, Activity, Result, or Context."@en ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+# =============================================================================
+# OBJECT PROPERTIES
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Statement Properties
+# -----------------------------------------------------------------------------
+
+:actor rdf:type owl:ObjectProperty ;
+    rdfs:label "actor"@en ;
+    rdfs:comment "The Actor who performed the action."@en ;
+    rdfs:domain :Statement ;
+    rdfs:range :Actor ;
+    rdfs:subPropertyOf prov:wasAssociatedWith ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+:verb rdf:type owl:ObjectProperty ;
+    rdfs:label "verb"@en ;
+    rdfs:comment "The action the Actor performed."@en ;
+    rdfs:domain :Statement ;
+    rdfs:range :Verb ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+:object rdf:type owl:ObjectProperty ;
+    rdfs:label "object"@en ;
+    rdfs:comment "The thing the Actor interacted with."@en ;
+    rdfs:domain :Statement ;
+    rdfs:range :StatementObject ;
+    rdfs:subPropertyOf prov:used ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+:result rdf:type owl:ObjectProperty ;
+    rdfs:label "result"@en ;
+    rdfs:comment "The outcome of the Actor's action."@en ;
+    rdfs:domain :Statement ;
+    rdfs:range :Result ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+:context rdf:type owl:ObjectProperty ;
+    rdfs:label "context"@en ;
+    rdfs:comment "Situational information for the Statement."@en ;
+    rdfs:domain :Statement ;
+    rdfs:range :Context ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+:authority rdf:type owl:ObjectProperty ;
+    rdfs:label "authority"@en ;
+    rdfs:comment "The entity asserting this Statement is true."@en ;
+    rdfs:domain :Statement ;
+    rdfs:range :Authority ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+:attachments rdf:type owl:ObjectProperty ;
+    rdfs:label "attachments"@en ;
+    rdfs:comment "Files attached to this Statement."@en ;
+    rdfs:domain :Statement ;
+    rdfs:range :Attachment ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+# -----------------------------------------------------------------------------
+# Actor Properties
+# -----------------------------------------------------------------------------
+
+:account rdf:type owl:ObjectProperty ;
+    rdfs:label "account"@en ;
+    rdfs:comment "An account on an existing system identifying this Actor."@en ;
+    rdfs:domain :Actor ;
+    rdfs:range :Account ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+:member rdf:type owl:ObjectProperty ;
+    rdfs:label "member"@en ;
+    rdfs:comment "An Agent that is a member of this Group."@en ;
+    rdfs:domain :Group ;
+    rdfs:range :Agent ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+# -----------------------------------------------------------------------------
+# Activity Properties
+# -----------------------------------------------------------------------------
+
+:definition rdf:type owl:ObjectProperty ;
+    rdfs:label "definition"@en ;
+    rdfs:comment "Metadata about this Activity."@en ;
+    rdfs:domain :Activity ;
+    rdfs:range :ActivityDefinition ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+:activityType rdf:type owl:ObjectProperty ;
+    rdfs:label "type"@en ;
+    rdfs:comment "The type of Activity."@en ;
+    rdfs:domain :ActivityDefinition ;
+    rdfs:range :ActivityType ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+:interactionType rdf:type owl:ObjectProperty ;
+    rdfs:label "interactionType"@en ;
+    rdfs:comment "The type of interaction for this Activity."@en ;
+    rdfs:domain :ActivityDefinition ;
+    rdfs:range :InteractionType ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+# -----------------------------------------------------------------------------
+# Result Properties
+# -----------------------------------------------------------------------------
+
+:score rdf:type owl:ObjectProperty ;
+    rdfs:label "score"@en ;
+    rdfs:comment "The score achieved."@en ;
+    rdfs:domain :Result ;
+    rdfs:range :Score ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+# -----------------------------------------------------------------------------
+# Context Properties
+# -----------------------------------------------------------------------------
+
+:instructor rdf:type owl:ObjectProperty ;
+    rdfs:label "instructor"@en ;
+    rdfs:comment "The instructor for this learning experience."@en ;
+    rdfs:domain :Context ;
+    rdfs:range :Actor ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+:team rdf:type owl:ObjectProperty ;
+    rdfs:label "team"@en ;
+    rdfs:comment "The team the Actor was part of during this experience."@en ;
+    rdfs:domain :Context ;
+    rdfs:range :Group ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+:contextActivities rdf:type owl:ObjectProperty ;
+    rdfs:label "contextActivities"@en ;
+    rdfs:comment "Related Activities."@en ;
+    rdfs:domain :Context ;
+    rdfs:range :ContextActivities ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+:statement rdf:type owl:ObjectProperty ;
+    rdfs:label "statement"@en ;
+    rdfs:comment "Reference to another Statement in context."@en ;
+    rdfs:domain :Context ;
+    rdfs:range :StatementRef ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+# Context Activities sub-properties
+:parent rdf:type owl:ObjectProperty ;
+    rdfs:label "parent"@en ;
+    rdfs:comment "Parent Activity (direct hierarchy)."@en ;
+    rdfs:domain :ContextActivities ;
+    rdfs:range :Activity ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+:grouping rdf:type owl:ObjectProperty ;
+    rdfs:label "grouping"@en ;
+    rdfs:comment "Grouping Activity (indirect hierarchy)."@en ;
+    rdfs:domain :ContextActivities ;
+    rdfs:range :Activity ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+:category rdf:type owl:ObjectProperty ;
+    rdfs:label "category"@en ;
+    rdfs:comment "Profile Activity (for profile identification)."@en ;
+    rdfs:domain :ContextActivities ;
+    rdfs:range :Activity ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+:other rdf:type owl:ObjectProperty ;
+    rdfs:label "other"@en ;
+    rdfs:comment "Other related Activity."@en ;
+    rdfs:domain :ContextActivities ;
+    rdfs:range :Activity ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+# -----------------------------------------------------------------------------
+# StatementRef Properties
+# -----------------------------------------------------------------------------
+
+:referencedStatement rdf:type owl:ObjectProperty ;
+    rdfs:label "referencedStatement"@en ;
+    rdfs:comment "The Statement this reference points to."@en ;
+    rdfs:domain :StatementRef ;
+    rdfs:range :Statement ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+# =============================================================================
+# DATATYPE PROPERTIES
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Statement Datatype Properties
+# -----------------------------------------------------------------------------
+
+:id rdf:type owl:DatatypeProperty ;
+    rdfs:label "id"@en ;
+    rdfs:comment "UUID identifier for the Statement."@en ;
+    rdfs:domain :Statement ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+:timestamp rdf:type owl:DatatypeProperty ;
+    rdfs:label "timestamp"@en ;
+    rdfs:comment "When the experience occurred."@en ;
+    rdfs:domain :Statement ;
+    rdfs:range xsd:dateTime ;
+    rdfs:subPropertyOf prov:endedAtTime ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+:stored rdf:type owl:DatatypeProperty ;
+    rdfs:label "stored"@en ;
+    rdfs:comment "When the Statement was stored in the LRS."@en ;
+    rdfs:domain :Statement ;
+    rdfs:range xsd:dateTime ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+:version rdf:type owl:DatatypeProperty ;
+    rdfs:label "version"@en ;
+    rdfs:comment "xAPI version (e.g., '1.0.3')."@en ;
+    rdfs:domain :Statement ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+# -----------------------------------------------------------------------------
+# Actor Datatype Properties
+# -----------------------------------------------------------------------------
+
+:name rdf:type owl:DatatypeProperty ;
+    rdfs:label "name"@en ;
+    rdfs:comment "Human-readable name."@en ;
+    rdfs:domain [ rdf:type owl:Class ;
+                  owl:unionOf ( :Actor :Verb :Activity :ActivityDefinition ) ] ;
+    rdfs:range rdf:langString ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+:mbox rdf:type owl:DatatypeProperty, owl:InverseFunctionalProperty ;
+    rdfs:label "mbox"@en ;
+    rdfs:comment "Email address (mailto: URI)."@en ;
+    rdfs:domain :Actor ;
+    rdfs:range xsd:anyURI ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+:mbox_sha1sum rdf:type owl:DatatypeProperty, owl:InverseFunctionalProperty ;
+    rdfs:label "mbox_sha1sum"@en ;
+    rdfs:comment "SHA1 hash of email address."@en ;
+    rdfs:domain :Actor ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+:openid rdf:type owl:DatatypeProperty, owl:InverseFunctionalProperty ;
+    rdfs:label "openid"@en ;
+    rdfs:comment "OpenID identifier."@en ;
+    rdfs:domain :Actor ;
+    rdfs:range xsd:anyURI ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+# Account Properties
+:homePage rdf:type owl:DatatypeProperty ;
+    rdfs:label "homePage"@en ;
+    rdfs:comment "Home page of the account system."@en ;
+    rdfs:domain :Account ;
+    rdfs:range xsd:anyURI ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+:accountName rdf:type owl:DatatypeProperty ;
+    rdfs:label "accountName"@en ;
+    rdfs:comment "Unique identifier within the account system."@en ;
+    rdfs:domain :Account ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+# -----------------------------------------------------------------------------
+# Verb Datatype Properties
+# -----------------------------------------------------------------------------
+
+:verbId rdf:type owl:DatatypeProperty ;
+    rdfs:label "id"@en ;
+    rdfs:comment "IRI identifier for the Verb."@en ;
+    rdfs:domain :Verb ;
+    rdfs:range xsd:anyURI ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+:display rdf:type owl:DatatypeProperty ;
+    rdfs:label "display"@en ;
+    rdfs:comment "Human-readable display name."@en ;
+    rdfs:domain :Verb ;
+    rdfs:range rdf:langString ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+# -----------------------------------------------------------------------------
+# Activity Datatype Properties
+# -----------------------------------------------------------------------------
+
+:activityId rdf:type owl:DatatypeProperty ;
+    rdfs:label "id"@en ;
+    rdfs:comment "IRI identifier for the Activity."@en ;
+    rdfs:domain :Activity ;
+    rdfs:range xsd:anyURI ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+:description rdf:type owl:DatatypeProperty ;
+    rdfs:label "description"@en ;
+    rdfs:comment "Description of the Activity."@en ;
+    rdfs:domain :ActivityDefinition ;
+    rdfs:range rdf:langString ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+:moreInfo rdf:type owl:DatatypeProperty ;
+    rdfs:label "moreInfo"@en ;
+    rdfs:comment "URL for more information about the Activity."@en ;
+    rdfs:domain :ActivityDefinition ;
+    rdfs:range xsd:anyURI ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+# -----------------------------------------------------------------------------
+# Result Datatype Properties
+# -----------------------------------------------------------------------------
+
+:completion rdf:type owl:DatatypeProperty ;
+    rdfs:label "completion"@en ;
+    rdfs:comment "Whether the Activity was completed."@en ;
+    rdfs:domain :Result ;
+    rdfs:range xsd:boolean ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+:success rdf:type owl:DatatypeProperty ;
+    rdfs:label "success"@en ;
+    rdfs:comment "Whether the Activity was successful."@en ;
+    rdfs:domain :Result ;
+    rdfs:range xsd:boolean ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+:response rdf:type owl:DatatypeProperty ;
+    rdfs:label "response"@en ;
+    rdfs:comment "The learner's response."@en ;
+    rdfs:domain :Result ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+:duration rdf:type owl:DatatypeProperty ;
+    rdfs:label "duration"@en ;
+    rdfs:comment "Duration of the activity (ISO 8601)."@en ;
+    rdfs:domain :Result ;
+    rdfs:range xsd:duration ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+# Score Properties
+:scaled rdf:type owl:DatatypeProperty ;
+    rdfs:label "scaled"@en ;
+    rdfs:comment "Scaled score (-1 to 1)."@en ;
+    rdfs:domain :Score ;
+    rdfs:range xsd:decimal ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+:raw rdf:type owl:DatatypeProperty ;
+    rdfs:label "raw"@en ;
+    rdfs:comment "Raw score."@en ;
+    rdfs:domain :Score ;
+    rdfs:range xsd:decimal ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+:min rdf:type owl:DatatypeProperty ;
+    rdfs:label "min"@en ;
+    rdfs:comment "Minimum possible score."@en ;
+    rdfs:domain :Score ;
+    rdfs:range xsd:decimal ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+:max rdf:type owl:DatatypeProperty ;
+    rdfs:label "max"@en ;
+    rdfs:comment "Maximum possible score."@en ;
+    rdfs:domain :Score ;
+    rdfs:range xsd:decimal ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+# -----------------------------------------------------------------------------
+# Context Datatype Properties
+# -----------------------------------------------------------------------------
+
+:registration rdf:type owl:DatatypeProperty ;
+    rdfs:label "registration"@en ;
+    rdfs:comment "UUID linking Statements in the same registration."@en ;
+    rdfs:domain :Context ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+:revision rdf:type owl:DatatypeProperty ;
+    rdfs:label "revision"@en ;
+    rdfs:comment "Revision of the Activity."@en ;
+    rdfs:domain :Context ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+:platform rdf:type owl:DatatypeProperty ;
+    rdfs:label "platform"@en ;
+    rdfs:comment "Platform used for the experience."@en ;
+    rdfs:domain :Context ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+:language rdf:type owl:DatatypeProperty ;
+    rdfs:label "language"@en ;
+    rdfs:comment "Language code (RFC 5646)."@en ;
+    rdfs:domain :Context ;
+    rdfs:range xsd:language ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+# -----------------------------------------------------------------------------
+# Attachment Datatype Properties
+# -----------------------------------------------------------------------------
+
+:usageType rdf:type owl:DatatypeProperty ;
+    rdfs:label "usageType"@en ;
+    rdfs:comment "IRI identifying attachment usage type."@en ;
+    rdfs:domain :Attachment ;
+    rdfs:range xsd:anyURI ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+:contentType rdf:type owl:DatatypeProperty ;
+    rdfs:label "contentType"@en ;
+    rdfs:comment "MIME type of the attachment."@en ;
+    rdfs:domain :Attachment ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+:length rdf:type owl:DatatypeProperty ;
+    rdfs:label "length"@en ;
+    rdfs:comment "Size of attachment in bytes."@en ;
+    rdfs:domain :Attachment ;
+    rdfs:range xsd:integer ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+:sha2 rdf:type owl:DatatypeProperty ;
+    rdfs:label "sha2"@en ;
+    rdfs:comment "SHA-256 hash of attachment content."@en ;
+    rdfs:domain :Attachment ;
+    rdfs:range xsd:string ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+:fileUrl rdf:type owl:DatatypeProperty ;
+    rdfs:label "fileUrl"@en ;
+    rdfs:comment "URL where attachment can be retrieved."@en ;
+    rdfs:domain :Attachment ;
+    rdfs:range xsd:anyURI ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+# =============================================================================
+# INTERACTION TYPES
+# =============================================================================
+
+:InteractionType rdf:type owl:Class ;
+    rdfs:label "Interaction Type"@en ;
+    rdfs:comment "Type of interaction for an Activity."@en ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+:TrueFalse rdf:type :InteractionType ;
+    rdfs:label "true-false"@en .
+
+:Choice rdf:type :InteractionType ;
+    rdfs:label "choice"@en .
+
+:FillIn rdf:type :InteractionType ;
+    rdfs:label "fill-in"@en .
+
+:LongFillIn rdf:type :InteractionType ;
+    rdfs:label "long-fill-in"@en .
+
+:Matching rdf:type :InteractionType ;
+    rdfs:label "matching"@en .
+
+:Performance rdf:type :InteractionType ;
+    rdfs:label "performance"@en .
+
+:Sequencing rdf:type :InteractionType ;
+    rdfs:label "sequencing"@en .
+
+:Likert rdf:type :InteractionType ;
+    rdfs:label "likert"@en .
+
+:Numeric rdf:type :InteractionType ;
+    rdfs:label "numeric"@en .
+
+:Other rdf:type :InteractionType ;
+    rdfs:label "other"@en .
+
+# =============================================================================
+# VOIDING
+# =============================================================================
+
+:voided rdf:type owl:DatatypeProperty ;
+    rdfs:label "voided"@en ;
+    rdfs:comment "Whether this Statement has been voided."@en ;
+    rdfs:domain :Statement ;
+    rdfs:range xsd:boolean ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+:voidedStatement rdf:type owl:ObjectProperty ;
+    rdfs:label "voids"@en ;
+    rdfs:comment "The Statement that this voiding Statement voids."@en ;
+    rdfs:domain :Statement ;
+    rdfs:range :Statement ;
+    rdfs:isDefinedBy <https://w3id.org/xapi/ontology> .
+
+# =============================================================================
+# ALIGNMENTS WITH OTHER ONTOLOGIES
+# =============================================================================
+
+# PROV-O Alignments
+:Statement rdfs:subClassOf prov:Activity .
+:Actor rdfs:subClassOf prov:Agent .
+:Activity rdfs:subClassOf prov:Entity .
+:actor rdfs:subPropertyOf prov:wasAssociatedWith .
+:object rdfs:subPropertyOf prov:used .
+:timestamp rdfs:subPropertyOf prov:endedAtTime .
+
+# FOAF Alignments
+:Agent rdfs:subClassOf foaf:Agent .
+:name rdfs:subPropertyOf foaf:name .
+:mbox rdfs:subPropertyOf foaf:mbox .
+:mbox_sha1sum rdfs:subPropertyOf foaf:mbox_sha1sum .
+
+# SKOS Alignments
+:Verb rdfs:subClassOf skos:Concept .
+:ActivityType rdfs:subClassOf skos:Concept .
+:display rdfs:subPropertyOf skos:prefLabel .
+
+# Schema.org Alignments
+:Activity owl:equivalentClass schema:LearningResource .
+:description rdfs:subPropertyOf schema:description .
+:name rdfs:subPropertyOf schema:name .

@@ -1,0 +1,930 @@
+@prefix : <https://w3id.org/xapi/shapes#> .
+@prefix xapi: <https://w3id.org/xapi/ontology#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+@base <https://w3id.org/xapi/shapes> .
+
+# =============================================================================
+# SHAPES GRAPH METADATA
+# =============================================================================
+
+<https://w3id.org/xapi/shapes> a sh:ShapesGraph ;
+    dcterms:title "xAPI Core SHACL Shapes"@en ;
+    dcterms:description "SHACL shapes for validating xAPI statements and inference rules for generating derived data."@en ;
+    dcterms:creator "HD-XAPI Project" ;
+    dcterms:license <https://opensource.org/licenses/MIT> ;
+    dcterms:created "2026-01-07"^^xsd:date ;
+    sh:declare [
+        sh:prefix "xapi" ;
+        sh:namespace "https://w3id.org/xapi/ontology#"^^xsd:anyURI
+    ] , [
+        sh:prefix "prov" ;
+        sh:namespace "http://www.w3.org/ns/prov#"^^xsd:anyURI
+    ] .
+
+# =============================================================================
+# STATEMENT VALIDATION SHAPES
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Core Statement Shape
+# -----------------------------------------------------------------------------
+
+:StatementShape a sh:NodeShape ;
+    sh:targetClass xapi:Statement ;
+    rdfs:label "Statement Shape"@en ;
+    rdfs:comment "Core validation shape for xAPI Statements."@en ;
+
+    # Required properties
+    sh:property [
+        sh:path xapi:actor ;
+        sh:name "actor" ;
+        sh:description "Who performed the action" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:or (
+            [ sh:class xapi:Agent ]
+            [ sh:class xapi:Group ]
+        ) ;
+        sh:severity sh:Violation ;
+        sh:message "Statement must have exactly one actor (Agent or Group)."
+    ] ;
+
+    sh:property [
+        sh:path xapi:verb ;
+        sh:name "verb" ;
+        sh:description "The action performed" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:class xapi:Verb ;
+        sh:severity sh:Violation ;
+        sh:message "Statement must have exactly one verb."
+    ] ;
+
+    sh:property [
+        sh:path xapi:object ;
+        sh:name "object" ;
+        sh:description "What the action was performed on" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:or (
+            [ sh:class xapi:Activity ]
+            [ sh:class xapi:Agent ]
+            [ sh:class xapi:Group ]
+            [ sh:class xapi:StatementRef ]
+            [ sh:class xapi:SubStatement ]
+        ) ;
+        sh:severity sh:Violation ;
+        sh:message "Statement must have exactly one object."
+    ] ;
+
+    # Optional properties with constraints
+    sh:property [
+        sh:path xapi:id ;
+        sh:name "id" ;
+        sh:description "UUID identifier" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$" ;
+        sh:message "Statement id must be a valid UUID."
+    ] ;
+
+    sh:property [
+        sh:path xapi:timestamp ;
+        sh:name "timestamp" ;
+        sh:description "When the experience occurred" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:dateTime ;
+        sh:message "Timestamp must be a valid ISO 8601 dateTime."
+    ] ;
+
+    sh:property [
+        sh:path xapi:stored ;
+        sh:name "stored" ;
+        sh:description "When stored in LRS" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:dateTime ;
+        sh:message "Stored must be a valid ISO 8601 dateTime."
+    ] ;
+
+    sh:property [
+        sh:path xapi:result ;
+        sh:name "result" ;
+        sh:description "Outcome of the action" ;
+        sh:maxCount 1 ;
+        sh:class xapi:Result ;
+    ] ;
+
+    sh:property [
+        sh:path xapi:context ;
+        sh:name "context" ;
+        sh:description "Situational information" ;
+        sh:maxCount 1 ;
+        sh:class xapi:Context ;
+    ] ;
+
+    sh:property [
+        sh:path xapi:authority ;
+        sh:name "authority" ;
+        sh:description "Who asserts this statement" ;
+        sh:maxCount 1 ;
+        sh:or (
+            [ sh:class xapi:Agent ]
+            [ sh:class xapi:Group ]
+        ) ;
+    ] ;
+
+    sh:property [
+        sh:path xapi:version ;
+        sh:name "version" ;
+        sh:description "xAPI version" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^1\\.0(\\.\\d+)?$" ;
+        sh:message "Version must be a valid xAPI version (e.g., 1.0.3)."
+    ] .
+
+# -----------------------------------------------------------------------------
+# Actor Shapes
+# -----------------------------------------------------------------------------
+
+:AgentShape a sh:NodeShape ;
+    sh:targetClass xapi:Agent ;
+    rdfs:label "Agent Shape"@en ;
+
+    # Must have exactly one Inverse Functional Identifier (IFI)
+    sh:xone (
+        [ sh:property [ sh:path xapi:mbox ; sh:minCount 1 ; sh:maxCount 1 ] ]
+        [ sh:property [ sh:path xapi:mbox_sha1sum ; sh:minCount 1 ; sh:maxCount 1 ] ]
+        [ sh:property [ sh:path xapi:openid ; sh:minCount 1 ; sh:maxCount 1 ] ]
+        [ sh:property [ sh:path xapi:account ; sh:minCount 1 ; sh:maxCount 1 ] ]
+    ) ;
+    sh:message "Agent must have exactly one inverse functional identifier (mbox, mbox_sha1sum, openid, or account)." ;
+
+    sh:property [
+        sh:path xapi:name ;
+        sh:name "name" ;
+        sh:maxCount 1 ;
+        sh:datatype rdf:langString ;
+    ] ;
+
+    sh:property [
+        sh:path xapi:mbox ;
+        sh:name "mbox" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:anyURI ;
+        sh:pattern "^mailto:.+" ;
+        sh:message "mbox must be a mailto: URI."
+    ] ;
+
+    sh:property [
+        sh:path xapi:mbox_sha1sum ;
+        sh:name "mbox_sha1sum" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[0-9a-fA-F]{40}$" ;
+        sh:message "mbox_sha1sum must be a 40-character hex string."
+    ] ;
+
+    sh:property [
+        sh:path xapi:openid ;
+        sh:name "openid" ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+    ] ;
+
+    sh:property [
+        sh:path xapi:account ;
+        sh:name "account" ;
+        sh:maxCount 1 ;
+        sh:node :AccountShape ;
+    ] .
+
+:GroupShape a sh:NodeShape ;
+    sh:targetClass xapi:Group ;
+    rdfs:label "Group Shape"@en ;
+
+    # Either has IFI (identified) or members (anonymous), or both
+    sh:or (
+        # Identified group (has IFI)
+        [
+            sh:xone (
+                [ sh:property [ sh:path xapi:mbox ; sh:minCount 1 ] ]
+                [ sh:property [ sh:path xapi:mbox_sha1sum ; sh:minCount 1 ] ]
+                [ sh:property [ sh:path xapi:openid ; sh:minCount 1 ] ]
+                [ sh:property [ sh:path xapi:account ; sh:minCount 1 ] ]
+            )
+        ]
+        # Anonymous group (has members)
+        [
+            sh:property [
+                sh:path xapi:member ;
+                sh:minCount 1 ;
+                sh:node :AgentShape ;
+            ]
+        ]
+    ) ;
+
+    sh:property [
+        sh:path xapi:name ;
+        sh:name "name" ;
+        sh:maxCount 1 ;
+        sh:datatype rdf:langString ;
+    ] ;
+
+    sh:property [
+        sh:path xapi:member ;
+        sh:name "member" ;
+        sh:node :AgentShape ;
+    ] .
+
+:AccountShape a sh:NodeShape ;
+    rdfs:label "Account Shape"@en ;
+
+    sh:property [
+        sh:path xapi:homePage ;
+        sh:name "homePage" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:message "Account must have a homePage IRI."
+    ] ;
+
+    sh:property [
+        sh:path xapi:accountName ;
+        sh:name "name" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:minLength 1 ;
+        sh:message "Account must have a non-empty name."
+    ] .
+
+# -----------------------------------------------------------------------------
+# Verb Shape
+# -----------------------------------------------------------------------------
+
+:VerbShape a sh:NodeShape ;
+    sh:targetClass xapi:Verb ;
+    rdfs:label "Verb Shape"@en ;
+
+    sh:property [
+        sh:path xapi:verbId ;
+        sh:name "id" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:message "Verb must have an IRI identifier."
+    ] ;
+
+    sh:property [
+        sh:path xapi:display ;
+        sh:name "display" ;
+        sh:datatype rdf:langString ;
+        sh:message "Verb display values must be language-tagged strings."
+    ] .
+
+# -----------------------------------------------------------------------------
+# Activity Shape
+# -----------------------------------------------------------------------------
+
+:ActivityShape a sh:NodeShape ;
+    sh:targetClass xapi:Activity ;
+    rdfs:label "Activity Shape"@en ;
+
+    sh:property [
+        sh:path xapi:activityId ;
+        sh:name "id" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:message "Activity must have an IRI identifier."
+    ] ;
+
+    sh:property [
+        sh:path xapi:definition ;
+        sh:name "definition" ;
+        sh:maxCount 1 ;
+        sh:node :ActivityDefinitionShape ;
+    ] .
+
+:ActivityDefinitionShape a sh:NodeShape ;
+    rdfs:label "Activity Definition Shape"@en ;
+
+    sh:property [
+        sh:path xapi:name ;
+        sh:name "name" ;
+        sh:datatype rdf:langString ;
+    ] ;
+
+    sh:property [
+        sh:path xapi:description ;
+        sh:name "description" ;
+        sh:datatype rdf:langString ;
+    ] ;
+
+    sh:property [
+        sh:path xapi:activityType ;
+        sh:name "type" ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+    ] ;
+
+    sh:property [
+        sh:path xapi:moreInfo ;
+        sh:name "moreInfo" ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+    ] ;
+
+    sh:property [
+        sh:path xapi:interactionType ;
+        sh:name "interactionType" ;
+        sh:maxCount 1 ;
+        sh:class xapi:InteractionType ;
+    ] .
+
+# -----------------------------------------------------------------------------
+# Result Shape
+# -----------------------------------------------------------------------------
+
+:ResultShape a sh:NodeShape ;
+    sh:targetClass xapi:Result ;
+    rdfs:label "Result Shape"@en ;
+
+    sh:property [
+        sh:path xapi:score ;
+        sh:name "score" ;
+        sh:maxCount 1 ;
+        sh:node :ScoreShape ;
+    ] ;
+
+    sh:property [
+        sh:path xapi:success ;
+        sh:name "success" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:boolean ;
+    ] ;
+
+    sh:property [
+        sh:path xapi:completion ;
+        sh:name "completion" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:boolean ;
+    ] ;
+
+    sh:property [
+        sh:path xapi:response ;
+        sh:name "response" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+    ] ;
+
+    sh:property [
+        sh:path xapi:duration ;
+        sh:name "duration" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:duration ;
+    ] .
+
+:ScoreShape a sh:NodeShape ;
+    rdfs:label "Score Shape"@en ;
+
+    sh:property [
+        sh:path xapi:scaled ;
+        sh:name "scaled" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive -1.0 ;
+        sh:maxInclusive 1.0 ;
+        sh:message "Scaled score must be between -1 and 1."
+    ] ;
+
+    sh:property [
+        sh:path xapi:raw ;
+        sh:name "raw" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+    ] ;
+
+    sh:property [
+        sh:path xapi:min ;
+        sh:name "min" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+    ] ;
+
+    sh:property [
+        sh:path xapi:max ;
+        sh:name "max" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal ;
+    ] ;
+
+    # Custom constraint: raw must be between min and max if all present
+    sh:sparql [
+        sh:message "Raw score must be between min and max values." ;
+        sh:prefixes <https://w3id.org/xapi/shapes> ;
+        sh:select """
+            SELECT $this
+            WHERE {
+                $this xapi:raw ?raw .
+                $this xapi:min ?min .
+                $this xapi:max ?max .
+                FILTER (?raw < ?min || ?raw > ?max)
+            }
+        """
+    ] .
+
+# -----------------------------------------------------------------------------
+# Context Shape
+# -----------------------------------------------------------------------------
+
+:ContextShape a sh:NodeShape ;
+    sh:targetClass xapi:Context ;
+    rdfs:label "Context Shape"@en ;
+
+    sh:property [
+        sh:path xapi:registration ;
+        sh:name "registration" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$" ;
+        sh:message "Registration must be a valid UUID."
+    ] ;
+
+    sh:property [
+        sh:path xapi:instructor ;
+        sh:name "instructor" ;
+        sh:or (
+            [ sh:class xapi:Agent ]
+            [ sh:class xapi:Group ]
+        ) ;
+    ] ;
+
+    sh:property [
+        sh:path xapi:team ;
+        sh:name "team" ;
+        sh:class xapi:Group ;
+    ] ;
+
+    sh:property [
+        sh:path xapi:contextActivities ;
+        sh:name "contextActivities" ;
+        sh:maxCount 1 ;
+        sh:node :ContextActivitiesShape ;
+    ] ;
+
+    sh:property [
+        sh:path xapi:revision ;
+        sh:name "revision" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+    ] ;
+
+    sh:property [
+        sh:path xapi:platform ;
+        sh:name "platform" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+    ] ;
+
+    sh:property [
+        sh:path xapi:language ;
+        sh:name "language" ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:language ;
+    ] ;
+
+    sh:property [
+        sh:path xapi:statement ;
+        sh:name "statement" ;
+        sh:class xapi:StatementRef ;
+    ] .
+
+:ContextActivitiesShape a sh:NodeShape ;
+    rdfs:label "Context Activities Shape"@en ;
+
+    sh:property [
+        sh:path xapi:parent ;
+        sh:name "parent" ;
+        sh:class xapi:Activity ;
+    ] ;
+
+    sh:property [
+        sh:path xapi:grouping ;
+        sh:name "grouping" ;
+        sh:class xapi:Activity ;
+    ] ;
+
+    sh:property [
+        sh:path xapi:category ;
+        sh:name "category" ;
+        sh:class xapi:Activity ;
+    ] ;
+
+    sh:property [
+        sh:path xapi:other ;
+        sh:name "other" ;
+        sh:class xapi:Activity ;
+    ] .
+
+# -----------------------------------------------------------------------------
+# StatementRef Shape
+# -----------------------------------------------------------------------------
+
+:StatementRefShape a sh:NodeShape ;
+    sh:targetClass xapi:StatementRef ;
+    rdfs:label "Statement Reference Shape"@en ;
+
+    sh:property [
+        sh:path xapi:id ;
+        sh:name "id" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$" ;
+        sh:message "StatementRef id must be a valid UUID."
+    ] .
+
+# -----------------------------------------------------------------------------
+# Attachment Shape
+# -----------------------------------------------------------------------------
+
+:AttachmentShape a sh:NodeShape ;
+    sh:targetClass xapi:Attachment ;
+    rdfs:label "Attachment Shape"@en ;
+
+    sh:property [
+        sh:path xapi:usageType ;
+        sh:name "usageType" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+        sh:message "Attachment must have a usageType IRI."
+    ] ;
+
+    sh:property [
+        sh:path xapi:display ;
+        sh:name "display" ;
+        sh:minCount 1 ;
+        sh:datatype rdf:langString ;
+        sh:message "Attachment must have at least one display value."
+    ] ;
+
+    sh:property [
+        sh:path xapi:contentType ;
+        sh:name "contentType" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[a-zA-Z0-9]+/[a-zA-Z0-9\\-\\+\\.]+$" ;
+        sh:message "Content type must be a valid MIME type."
+    ] ;
+
+    sh:property [
+        sh:path xapi:length ;
+        sh:name "length" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:integer ;
+        sh:minExclusive 0 ;
+        sh:message "Length must be a positive integer."
+    ] ;
+
+    sh:property [
+        sh:path xapi:sha2 ;
+        sh:name "sha2" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[0-9a-fA-F]{64}$" ;
+        sh:message "SHA-2 must be a 64-character hex string (SHA-256)."
+    ] ;
+
+    sh:property [
+        sh:path xapi:fileUrl ;
+        sh:name "fileUrl" ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI ;
+    ] .
+
+# =============================================================================
+# SHACL-AF INFERENCE RULES
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Rule: Generate PROV Activity from Statement
+# -----------------------------------------------------------------------------
+
+:ProvActivityGenerationRule a sh:NodeShape ;
+    rdfs:label "PROV Activity Generation Rule"@en ;
+    rdfs:comment "Generates PROV-O Activity representation from xAPI Statement."@en ;
+    sh:target [
+        a sh:SPARQLTarget ;
+        sh:prefixes <https://w3id.org/xapi/shapes> ;
+        sh:select """
+            SELECT ?this
+            WHERE {
+                ?this a xapi:Statement .
+                FILTER NOT EXISTS { ?this a prov:Activity }
+            }
+        """
+    ] ;
+    sh:rule [
+        a sh:SPARQLRule ;
+        sh:prefixes <https://w3id.org/xapi/shapes> ;
+        sh:construct """
+            CONSTRUCT {
+                ?this a prov:Activity ;
+                    prov:wasAssociatedWith ?actor ;
+                    prov:used ?object ;
+                    prov:endedAtTime ?timestamp ;
+                    prov:generated ?result .
+            }
+            WHERE {
+                ?this xapi:actor ?actor ;
+                      xapi:object ?object .
+                OPTIONAL { ?this xapi:timestamp ?timestamp }
+                OPTIONAL { ?this xapi:result ?result }
+            }
+        """
+    ] .
+
+# -----------------------------------------------------------------------------
+# Rule: Link Statements by Registration
+# -----------------------------------------------------------------------------
+
+:RegistrationLinkRule a sh:NodeShape ;
+    rdfs:label "Registration Link Rule"@en ;
+    rdfs:comment "Links Statements that share the same registration UUID."@en ;
+    sh:target [
+        a sh:SPARQLTarget ;
+        sh:prefixes <https://w3id.org/xapi/shapes> ;
+        sh:select """
+            SELECT ?this
+            WHERE {
+                ?this a xapi:Statement ;
+                      xapi:context/xapi:registration ?reg .
+            }
+        """
+    ] ;
+    sh:rule [
+        a sh:SPARQLRule ;
+        sh:prefixes <https://w3id.org/xapi/shapes> ;
+        sh:construct """
+            CONSTRUCT {
+                ?this :sameRegistration ?other .
+            }
+            WHERE {
+                ?this xapi:context/xapi:registration ?reg .
+                ?other xapi:context/xapi:registration ?reg .
+                FILTER (?this != ?other)
+            }
+        """
+    ] .
+
+# -----------------------------------------------------------------------------
+# Rule: Generate Activity Hierarchy Links
+# -----------------------------------------------------------------------------
+
+:ActivityHierarchyRule a sh:NodeShape ;
+    rdfs:label "Activity Hierarchy Rule"@en ;
+    rdfs:comment "Generates explicit parent-child links between Activities."@en ;
+    sh:target [
+        a sh:SPARQLTarget ;
+        sh:prefixes <https://w3id.org/xapi/shapes> ;
+        sh:select """
+            SELECT ?this
+            WHERE {
+                ?stmt a xapi:Statement ;
+                      xapi:object ?this ;
+                      xapi:context/xapi:contextActivities/xapi:parent ?parent .
+                ?this a xapi:Activity .
+            }
+        """
+    ] ;
+    sh:rule [
+        a sh:SPARQLRule ;
+        sh:prefixes <https://w3id.org/xapi/shapes> ;
+        sh:construct """
+            CONSTRUCT {
+                ?this :hasParent ?parent .
+                ?parent :hasChild ?this .
+            }
+            WHERE {
+                ?stmt xapi:object ?this ;
+                      xapi:context/xapi:contextActivities/xapi:parent ?parent .
+            }
+        """
+    ] .
+
+# -----------------------------------------------------------------------------
+# Rule: Completion Aggregation
+# -----------------------------------------------------------------------------
+
+:CompletionAggregationRule a sh:NodeShape ;
+    rdfs:label "Completion Aggregation Rule"@en ;
+    rdfs:comment "Marks activities as completed when all children are completed."@en ;
+    sh:target [
+        a sh:SPARQLTarget ;
+        sh:prefixes <https://w3id.org/xapi/shapes> ;
+        sh:select """
+            SELECT ?this
+            WHERE {
+                ?this a xapi:Activity .
+                ?this :hasChild ?child .
+                FILTER NOT EXISTS {
+                    ?this :hasChild ?incomplete .
+                    FILTER NOT EXISTS {
+                        ?stmt xapi:object ?incomplete ;
+                              xapi:result/xapi:completion true .
+                    }
+                }
+            }
+        """
+    ] ;
+    sh:rule [
+        a sh:SPARQLRule ;
+        sh:prefixes <https://w3id.org/xapi/shapes> ;
+        sh:construct """
+            CONSTRUCT {
+                ?this :allChildrenComplete true .
+            }
+            WHERE {
+                ?this a xapi:Activity .
+            }
+        """
+    ] .
+
+# -----------------------------------------------------------------------------
+# Rule: Actor Profile Aggregation
+# -----------------------------------------------------------------------------
+
+:ActorProfileRule a sh:NodeShape ;
+    rdfs:label "Actor Profile Aggregation Rule"@en ;
+    rdfs:comment "Aggregates statistics about actor's learning activities."@en ;
+    sh:target [
+        a sh:SPARQLTarget ;
+        sh:prefixes <https://w3id.org/xapi/shapes> ;
+        sh:select """
+            SELECT ?this
+            WHERE {
+                ?stmt a xapi:Statement ;
+                      xapi:actor ?this .
+            }
+        """
+    ] ;
+    sh:rule [
+        a sh:SPARQLRule ;
+        sh:prefixes <https://w3id.org/xapi/shapes> ;
+        sh:construct """
+            CONSTRUCT {
+                ?this :hasLearningRecord [
+                    :activityCount ?count ;
+                    :lastActivity ?lastTime
+                ] .
+            }
+            WHERE {
+                {
+                    SELECT ?this (COUNT(?stmt) AS ?count) (MAX(?time) AS ?lastTime)
+                    WHERE {
+                        ?stmt xapi:actor ?this ;
+                              xapi:timestamp ?time .
+                    }
+                    GROUP BY ?this
+                }
+            }
+        """
+    ] .
+
+# -----------------------------------------------------------------------------
+# Rule: Voiding Chain
+# -----------------------------------------------------------------------------
+
+:VoidingChainRule a sh:NodeShape ;
+    rdfs:label "Voiding Chain Rule"@en ;
+    rdfs:comment "Marks statements as voided when a voiding statement exists."@en ;
+    sh:target [
+        a sh:SPARQLTarget ;
+        sh:prefixes <https://w3id.org/xapi/shapes> ;
+        sh:select """
+            SELECT ?this
+            WHERE {
+                ?voidingStmt xapi:verb <http://adlnet.gov/expapi/verbs/voided> ;
+                             xapi:object ?ref .
+                ?ref a xapi:StatementRef ;
+                     xapi:id ?refId .
+                ?this xapi:id ?refId .
+                FILTER NOT EXISTS { ?this xapi:voided true }
+            }
+        """
+    ] ;
+    sh:rule [
+        a sh:SPARQLRule ;
+        sh:prefixes <https://w3id.org/xapi/shapes> ;
+        sh:construct """
+            CONSTRUCT {
+                ?this xapi:voided true ;
+                      :voidedBy ?voidingStmt .
+            }
+            WHERE {
+                ?voidingStmt xapi:verb <http://adlnet.gov/expapi/verbs/voided> ;
+                             xapi:object ?ref .
+                ?ref xapi:id ?refId .
+                ?this xapi:id ?refId .
+            }
+        """
+    ] .
+
+# =============================================================================
+# EXPORT VALIDATION SHAPES (for policy enforcement)
+# =============================================================================
+
+:AnonymizedDataShape a sh:NodeShape ;
+    rdfs:label "Anonymized Data Shape"@en ;
+    rdfs:comment "Shape to verify data has been anonymized before export."@en ;
+    sh:target [
+        a sh:SPARQLTarget ;
+        sh:prefixes <https://w3id.org/xapi/shapes> ;
+        sh:select """
+            SELECT ?this
+            WHERE {
+                ?this a xapi:Statement .
+                ?this :requiresAnonymization true .
+            }
+        """
+    ] ;
+
+    # No direct PII allowed
+    sh:property [
+        sh:path ( xapi:actor xapi:mbox ) ;
+        sh:maxCount 0 ;
+        sh:severity sh:Violation ;
+        sh:message "Anonymized export cannot contain actor mbox."
+    ] ;
+
+    sh:property [
+        sh:path ( xapi:actor xapi:name ) ;
+        sh:maxCount 0 ;
+        sh:severity sh:Violation ;
+        sh:message "Anonymized export cannot contain actor name."
+    ] ;
+
+    # Must have anonymized identifier
+    sh:property [
+        sh:path ( xapi:actor :anonymizedId ) ;
+        sh:minCount 1 ;
+        sh:severity sh:Violation ;
+        sh:message "Anonymized export must have anonymized identifier."
+    ] .
+
+# =============================================================================
+# HELPER PROPERTIES FOR RULES
+# =============================================================================
+
+:sameRegistration a rdf:Property ;
+    rdfs:label "same registration"@en ;
+    rdfs:comment "Links statements sharing the same registration UUID."@en .
+
+:hasParent a rdf:Property ;
+    rdfs:label "has parent"@en ;
+    rdfs:comment "Links activity to its parent activity."@en .
+
+:hasChild a rdf:Property ;
+    rdfs:label "has child"@en ;
+    rdfs:comment "Links activity to its child activity."@en .
+
+:allChildrenComplete a rdf:Property ;
+    rdfs:label "all children complete"@en ;
+    rdfs:comment "Indicates all child activities have been completed."@en .
+
+:hasLearningRecord a rdf:Property ;
+    rdfs:label "has learning record"@en ;
+    rdfs:comment "Links actor to aggregated learning statistics."@en .
+
+:activityCount a rdf:Property ;
+    rdfs:label "activity count"@en ;
+    rdfs:comment "Number of activities performed."@en .
+
+:lastActivity a rdf:Property ;
+    rdfs:label "last activity"@en ;
+    rdfs:comment "Timestamp of most recent activity."@en .
+
+:voidedBy a rdf:Property ;
+    rdfs:label "voided by"@en ;
+    rdfs:comment "Reference to the statement that voided this one."@en .
+
+:requiresAnonymization a rdf:Property ;
+    rdfs:label "requires anonymization"@en ;
+    rdfs:comment "Flag indicating data must be anonymized for export."@en .
+
+:anonymizedId a rdf:Property ;
+    rdfs:label "anonymized ID"@en ;
+    rdfs:comment "Anonymized identifier replacing PII."@en .
