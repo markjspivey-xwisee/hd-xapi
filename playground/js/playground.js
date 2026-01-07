@@ -16,6 +16,13 @@ document.addEventListener('DOMContentLoaded', function() {
     initExplorer();
     initModal();
     initButtons();
+
+    // Initialize new demo features
+    if (typeof initInference === 'function') initInference();
+    if (typeof initSPARQL === 'function') initSPARQL();
+    if (typeof initCompare === 'function') initCompare();
+    if (typeof initAnonymize === 'function') initAnonymize();
+    if (typeof initGraph === 'function') initGraph();
 });
 
 /**
