@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HD-XAPI Playground - Semantic xAPI Validator</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- CodeMirror for syntax highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/dracula.min.css">
+    <!-- Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <h1>HD-XAPI Playground</h1>
+            <p class="tagline">Semantic xAPI Statement Validator & Explorer</p>
+        </div>
+        <nav>
+            <a href="#validator" class="nav-link active" data-tab="validator">Validator</a>
+            <a href="#explorer" class="nav-link" data-tab="explorer">Ontology Explorer</a>
+            <a href="#examples" class="nav-link" data-tab="examples">Examples</a>
+            <a href="#about" class="nav-link" data-tab="about">About</a>
+        </nav>
+    </header>
+
+    <main>
+        <!-- Validator Tab -->
+        <section id="validator" class="tab-content active">
+            <div class="validator-container">
+                <div class="editor-panel">
+                    <div class="panel-header">
+                        <h2>xAPI Statement (JSON-LD)</h2>
+                        <div class="panel-actions">
+                            <select id="example-select">
+                                <option value="">Load Example...</option>
+                                <option value="simple-completed">Simple Completion</option>
+                                <option value="assessment-passed">Assessment Passed</option>
+                                <option value="video-watched">Video Watched</option>
+                                <option value="tla-competency">TLA Competency Assertion</option>
+                                <option value="tla-credential">TLA Credential Conferred</option>
+                                <option value="with-context">With Full Context</option>
+                                <option value="with-result">With Score Result</option>
+                                <option value="invalid-missing-actor">Invalid: Missing Actor</option>
+                                <option value="invalid-bad-score">Invalid: Bad Score</option>
+                            </select>
+                            <button id="format-btn" class="btn btn-secondary">Format</button>
+                            <button id="clear-btn" class="btn btn-secondary">Clear</button>
+                        </div>
+                    </div>
+                    <div class="editor-wrapper">
+                        <textarea id="statement-editor"></textarea>
+                    </div>
+                    <div class="editor-footer">
+                        <button id="validate-btn" class="btn btn-primary">
+                            <span class="btn-icon">&#10003;</span> Validate Statement
+                        </button>
+                        <button id="convert-rdf-btn" class="btn btn-secondary">
+                            <span class="btn-icon">&#8644;</span> Convert to RDF
+                        </button>
+                    </div>
+                </div>
+
+                <div class="results-panel">
+                    <div class="panel-header">
+                        <h2>Validation Results</h2>
+                        <div id="validation-status" class="status-badge"></div>
+                    </div>
+                    <div id="results-content" class="results-content">
+                        <div class="placeholder">
+                            <div class="placeholder-icon">&#9998;</div>
+                            <p>Enter an xAPI statement and click "Validate" to check it against SHACL shapes.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Ontology Explorer Tab -->
+        <section id="explorer" class="tab-content">
+            <div class="explorer-container">
+                <div class="explorer-sidebar">
+                    <h3>Classes</h3>
+                    <div class="class-tree" id="class-tree">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+                <div class="explorer-main">
+                    <div id="class-details" class="class-details">
+                        <div class="placeholder">
+                            <div class="placeholder-icon">&#128269;</div>
+                            <p>Select a class from the sidebar to view its properties and constraints.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Examples Tab -->
+        <section id="examples" class="tab-content">
+            <div class="examples-container">
+                <h2>Example Statements</h2>
+                <p class="section-description">Click on any example to load it into the validator.</p>
+
+                <div class="examples-grid" id="examples-grid">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- About Tab -->
+        <section id="about" class="tab-content">
+            <div class="about-container">
+                <h2>About HD-XAPI</h2>
+                <p class="lead">HD-XAPI (High-Definition Experience API) is a semantic web extension of the xAPI specification.</p>
+
+                <div class="about-grid">
+                    <div class="about-card">
+                        <h3>OWL Ontology</h3>
+                        <p>Formal semantic definitions for all xAPI concepts including Statement, Actor, Verb, Activity, Result, and Context.</p>
+                    </div>
+                    <div class="about-card">
+                        <h3>SHACL Validation</h3>
+                        <p>Machine-readable constraints that validate statements against profile requirements with detailed error reporting.</p>
+                    </div>
+                    <div class="about-card">
+                        <h3>SHACL-AF Rules</h3>
+                        <p>Inference rules that generate PROV links, registration joins, and competency assertions automatically.</p>
+                    </div>
+                    <div class="about-card">
+                        <h3>ODRL Policies</h3>
+                        <p>Data governance policies for anonymization, access control, and compliance at export boundaries.</p>
+                    </div>
+                    <div class="about-card">
+                        <h3>VC/DID Integration</h3>
+                        <p>Verifiable credentials for portable achievements, role assertions, and tool authentication.</p>
+                    </div>
+                    <div class="about-card">
+                        <h3>TLA Profile</h3>
+                        <p>Total Learning Architecture support for competency-based learning and career path tracking.</p>
+                    </div>
+                </div>
+
+                <h3>Named Graph Architecture</h3>
+                <div class="graph-diagram">
+                    <div class="graph-layer" data-layer="credentials">Credentials (VC/DID)</div>
+                    <div class="graph-layer" data-layer="policies">Policies (ODRL)</div>
+                    <div class="graph-layer" data-layer="api">API (Hydra)</div>
+                    <div class="graph-layer" data-layer="data">Data (Statements)</div>
+                    <div class="graph-layer" data-layer="shapes">Shapes (SHACL)</div>
+                    <div class="graph-layer" data-layer="vocab">Vocabulary (SKOS)</div>
+                    <div class="graph-layer" data-layer="ontology">Ontology (OWL)</div>
+                </div>
+
+                <h3>Resources</h3>
+                <ul class="resource-list">
+                    <li><a href="https://github.com/markjspivey-xwisee/hd-xapi" target="_blank">GitHub Repository</a></li>
+                    <li><a href="https://github.com/markjspivey-xwisee/hd-xapi/blob/main/SPECIFICATION.md" target="_blank">Full Specification</a></li>
+                    <li><a href="https://github.com/markjspivey-xwisee/hd-xapi/blob/main/ARCHITECTURE.md" target="_blank">Reference Architecture</a></li>
+                    <li><a href="https://github.com/adlnet/xAPI-Spec" target="_blank">xAPI Specification</a></li>
+                </ul>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>HD-XAPI Playground &copy; 2026 | <a href="https://github.com/markjspivey-xwisee/hd-xapi">View on GitHub</a></p>
+    </footer>
+
+    <!-- Modal for RDF output -->
+    <div id="rdf-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>RDF Representation</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="format-tabs">
+                    <button class="format-tab active" data-format="turtle">Turtle</button>
+                    <button class="format-tab" data-format="ntriples">N-Triples</button>
+                    <button class="format-tab" data-format="jsonld">JSON-LD</button>
+                </div>
+                <pre id="rdf-output" class="rdf-output"></pre>
+            </div>
+            <div class="modal-footer">
+                <button id="copy-rdf-btn" class="btn btn-primary">Copy to Clipboard</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/javascript/javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/edit/matchbrackets.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/addon/edit/closebrackets.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/n3@1.17.2/browser/n3.min.js"></script>
+
+    <!-- Application -->
+    <script src="js/examples.js"></script>
+    <script src="js/ontology.js"></script>
+    <script src="js/validator.js"></script>
+    <script src="js/playground.js"></script>
+</body>
+</html>
