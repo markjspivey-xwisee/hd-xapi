@@ -1,0 +1,318 @@
+# =============================================================================
+# HD-XAPI Named Graph Configuration (TriG Format)
+# =============================================================================
+#
+# This file defines the named graph layout for the HD-XAPI triplestore.
+# Use this as a template for initializing your graph database.
+#
+# To load in Apache Jena Fuseki:
+#   ./tdbloader2 --loc=/path/to/db graphs.trig
+#
+# To load in GraphDB:
+#   Use the Import RDF Data feature with this file
+#
+# =============================================================================
+
+@prefix : <https://example.org/xapi/> .
+@prefix xapi: <https://w3id.org/xapi/ontology#> .
+@prefix tla: <https://w3id.org/xapi/tla#> .
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix dcat: <http://www.w3.org/ns/dcat#> .
+@prefix hydra: <http://www.w3.org/ns/hydra/core#> .
+@prefix odrl: <http://www.w3.org/ns/odrl/2/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix void: <http://rdfs.org/ns/void#> .
+
+# =============================================================================
+# GRAPH 1: ONTOLOGY GRAPH
+# =============================================================================
+# Contains: OWL class and property definitions
+# Update frequency: Rare (only on version updates)
+# Source files: ontology/xapi-core.owl.ttl, ontology/tla.owl.ttl
+# =============================================================================
+
+:ontology {
+    # Metadata about this graph
+    :ontology a void:Dataset ;
+        dcterms:title "xAPI Core Ontology"@en ;
+        dcterms:description "OWL ontology defining xAPI classes and properties."@en ;
+        dcterms:created "2026-01-07"^^xsd:date ;
+        void:vocabulary <https://w3id.org/xapi/ontology#> ;
+        void:vocabulary <https://w3id.org/xapi/tla#> ;
+        void:dataDump <file:///ontology/xapi-core.owl.ttl> ;
+        void:dataDump <file:///ontology/tla.owl.ttl> .
+
+    # Note: Actual ontology content loaded from external files
+    # This is a placeholder showing the graph structure
+}
+
+# =============================================================================
+# GRAPH 2: VOCABULARY GRAPH (SKOS)
+# =============================================================================
+# Contains: SKOS concepts for verbs, activity types, extensions
+# Update frequency: Occasional (when profiles updated)
+# =============================================================================
+
+:vocab {
+    # Metadata
+    :vocab a void:Dataset ;
+        dcterms:title "xAPI Vocabulary"@en ;
+        dcterms:description "SKOS vocabularies for xAPI verbs and activity types."@en .
+
+    # Example: Core ADL Verbs
+    :VerbScheme a skos:ConceptScheme ;
+        dcterms:title "xAPI Verb Vocabulary"@en ;
+        skos:hasTopConcept :experienced, :attended, :attempted, :completed,
+                          :passed, :failed, :answered, :interacted,
+                          :launched, :commented, :voided .
+
+    :experienced a skos:Concept, xapi:Verb ;
+        skos:inScheme :VerbScheme ;
+        skos:prefLabel "experienced"@en ;
+        xapi:verbId <http://adlnet.gov/expapi/verbs/experienced> .
+
+    :completed a skos:Concept, xapi:Verb ;
+        skos:inScheme :VerbScheme ;
+        skos:prefLabel "completed"@en ;
+        xapi:verbId <http://adlnet.gov/expapi/verbs/completed> .
+
+    :passed a skos:Concept, xapi:Verb ;
+        skos:inScheme :VerbScheme ;
+        skos:prefLabel "passed"@en ;
+        xapi:verbId <http://adlnet.gov/expapi/verbs/passed> .
+
+    :failed a skos:Concept, xapi:Verb ;
+        skos:inScheme :VerbScheme ;
+        skos:prefLabel "failed"@en ;
+        xapi:verbId <http://adlnet.gov/expapi/verbs/failed> .
+
+    :voided a skos:Concept, xapi:Verb ;
+        skos:inScheme :VerbScheme ;
+        skos:prefLabel "voided"@en ;
+        xapi:verbId <http://adlnet.gov/expapi/verbs/voided> .
+
+    # Activity Types
+    :ActivityTypeScheme a skos:ConceptScheme ;
+        dcterms:title "xAPI Activity Type Vocabulary"@en .
+
+    :course a skos:Concept, xapi:ActivityType ;
+        skos:inScheme :ActivityTypeScheme ;
+        skos:prefLabel "course"@en .
+
+    :module a skos:Concept, xapi:ActivityType ;
+        skos:inScheme :ActivityTypeScheme ;
+        skos:prefLabel "module"@en ;
+        skos:broader :course .
+
+    :assessment a skos:Concept, xapi:ActivityType ;
+        skos:inScheme :ActivityTypeScheme ;
+        skos:prefLabel "assessment"@en .
+}
+
+# =============================================================================
+# GRAPH 3: SHAPES GRAPH (SHACL)
+# =============================================================================
+# Contains: SHACL shapes for validation and inference rules
+# Update frequency: Per profile version
+# Source files: shapes/xapi-profile.shapes.ttl, shapes/tla.shapes.ttl
+# =============================================================================
+
+:shapes {
+    # Metadata
+    :shapes a void:Dataset ;
+        dcterms:title "xAPI SHACL Shapes"@en ;
+        dcterms:description "SHACL shapes for validating xAPI statements."@en ;
+        void:dataDump <file:///shapes/xapi-profile.shapes.ttl> ;
+        void:dataDump <file:///shapes/tla.shapes.ttl> .
+
+    # Note: Actual shapes loaded from external files
+}
+
+# =============================================================================
+# GRAPH 4: RUNTIME DATA GRAPH
+# =============================================================================
+# Contains: xAPI statements, agents, activities (runtime data)
+# Update frequency: Continuous (every statement)
+# =============================================================================
+
+:data/statements {
+    # Metadata
+    :data/statements a void:Dataset ;
+        dcterms:title "xAPI Statements"@en ;
+        dcterms:description "Runtime xAPI statement data."@en .
+
+    # Example statement (for illustration)
+    :stmt/example-001 a xapi:Statement ;
+        xapi:id "example-001" ;
+        xapi:actor [
+            a xapi:Agent ;
+            xapi:mbox <mailto:learner@example.org> ;
+            xapi:name "Example Learner"@en
+        ] ;
+        xapi:verb [
+            a xapi:Verb ;
+            xapi:verbId <http://adlnet.gov/expapi/verbs/completed>
+        ] ;
+        xapi:object [
+            a xapi:Activity ;
+            xapi:activityId <https://example.org/activities/course-101>
+        ] ;
+        xapi:timestamp "2026-01-07T12:00:00Z"^^xsd:dateTime ;
+        xapi:stored "2026-01-07T12:00:01Z"^^xsd:dateTime .
+}
+
+:data/agents {
+    # Metadata
+    :data/agents a void:Dataset ;
+        dcterms:title "Agent Registry"@en ;
+        dcterms:description "Registered agents and their profiles."@en .
+}
+
+:data/activities {
+    # Metadata
+    :data/activities a void:Dataset ;
+        dcterms:title "Activity Registry"@en ;
+        dcterms:description "Registered activities and their definitions."@en .
+
+    # Example activity definition
+    <https://example.org/activities/course-101> a xapi:Activity ;
+        xapi:activityId <https://example.org/activities/course-101> ;
+        xapi:definition [
+            xapi:name "Introduction to xAPI"@en ;
+            xapi:description "A course introducing the xAPI specification."@en ;
+            xapi:activityType <http://adlnet.gov/expapi/activities/course>
+        ] .
+}
+
+# =============================================================================
+# GRAPH 5: API DOCUMENTATION GRAPH (Hydra)
+# =============================================================================
+# Contains: Hydra API documentation
+# Update frequency: Per deployment
+# Source files: examples/hydra-api.jsonld
+# =============================================================================
+
+:api {
+    # Metadata
+    :api a void:Dataset ;
+        dcterms:title "API Documentation"@en ;
+        dcterms:description "Hydra API documentation for the LRS."@en ;
+        void:dataDump <file:///examples/hydra-api.jsonld> .
+
+    # Note: Actual API docs loaded from external file
+}
+
+# =============================================================================
+# GRAPH 6: POLICY GRAPH (ODRL)
+# =============================================================================
+# Contains: ODRL access and usage policies
+# Update frequency: Per governance decision
+# Source files: examples/odrl-policies.ttl
+# =============================================================================
+
+:policies {
+    # Metadata
+    :policies a void:Dataset ;
+        dcterms:title "Data Policies"@en ;
+        dcterms:description "ODRL policies governing data access and usage."@en ;
+        void:dataDump <file:///examples/odrl-policies.ttl> .
+
+    # Note: Actual policies loaded from external file
+}
+
+# =============================================================================
+# GRAPH 7: CREDENTIALS GRAPH (VC/DID)
+# =============================================================================
+# Contains: Verifiable Credentials, DID documents, proofs
+# Update frequency: Per credential issuance
+# =============================================================================
+
+:credentials {
+    # Metadata
+    :credentials a void:Dataset ;
+        dcterms:title "Credentials"@en ;
+        dcterms:description "Verifiable credentials and DID documents."@en .
+
+    # Note: Actual credentials loaded at runtime
+}
+
+# =============================================================================
+# GRAPH 8: PROFILE REGISTRY (DCAT)
+# =============================================================================
+# Contains: DCAT catalog of available xAPI profiles
+# Update frequency: When profiles added/updated
+# =============================================================================
+
+:profiles {
+    # Profile Catalog
+    :profileCatalog a dcat:Catalog ;
+        dcterms:title "xAPI Profile Registry"@en ;
+        dcterms:description "Catalog of available xAPI profiles."@en ;
+        dcterms:publisher <https://example.org> ;
+        dcat:dataset :coreProfile, :tlaProfile, :cmi5Profile .
+
+    :coreProfile a dcat:Dataset ;
+        dcterms:identifier "https://w3id.org/xapi/core" ;
+        dcterms:title "xAPI Core Profile"@en ;
+        dcterms:description "Core xAPI validation profile."@en ;
+        dcat:distribution [
+            dcat:accessURL :shapes ;
+            dcterms:format "text/turtle"
+        ] .
+
+    :tlaProfile a dcat:Dataset ;
+        dcterms:identifier "https://w3id.org/xapi/tla" ;
+        dcterms:title "Total Learning Architecture Profile"@en ;
+        dcterms:description "TLA profile for competency-based learning."@en ;
+        dcat:distribution [
+            dcat:accessURL <https://example.org/xapi/shapes/tla> ;
+            dcterms:format "text/turtle"
+        ] .
+
+    :cmi5Profile a dcat:Dataset ;
+        dcterms:identifier "https://w3id.org/xapi/cmi5" ;
+        dcterms:title "cmi5 Profile"@en ;
+        dcterms:description "cmi5 profile for LMS-launched content."@en ;
+        dcat:distribution [
+            dcat:accessURL <https://example.org/xapi/shapes/cmi5> ;
+            dcterms:format "text/turtle"
+        ] .
+}
+
+# =============================================================================
+# GRAPH 9: PROVENANCE GRAPH
+# =============================================================================
+# Contains: PROV-O provenance records generated by inference rules
+# Update frequency: Automatic (via SHACL-AF rules)
+# =============================================================================
+
+:provenance {
+    # Metadata
+    :provenance a void:Dataset ;
+        dcterms:title "Provenance Records"@en ;
+        dcterms:description "PROV-O provenance records for statements."@en .
+
+    # Note: Provenance triples generated automatically by SHACL rules
+}
+
+# =============================================================================
+# GRAPH METADATA (void:Dataset descriptions)
+# =============================================================================
+
+# Default graph contains dataset descriptions
+{
+    <https://example.org/xapi/> a void:Dataset ;
+        dcterms:title "HD-XAPI Learning Record Store"@en ;
+        dcterms:description "Semantic xAPI LRS with named graph architecture."@en ;
+        dcterms:created "2026-01-07"^^xsd:date ;
+        void:subset :ontology, :vocab, :shapes, :data/statements,
+                    :data/agents, :data/activities, :api, :policies,
+                    :credentials, :profiles, :provenance .
+}

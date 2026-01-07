@@ -1,0 +1,485 @@
+@prefix : <https://example.org/xapi/policies#> .
+@prefix odrl: <http://www.w3.org/ns/odrl/2/> .
+@prefix xapi: <https://w3id.org/xapi/ontology#> .
+@prefix tla: <https://w3id.org/xapi/tla#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix dpv: <https://w3id.org/dpv#> .
+
+@base <https://example.org/xapi/policies> .
+
+# =============================================================================
+# POLICY METADATA
+# =============================================================================
+
+<https://example.org/xapi/policies> a odrl:PolicySet ;
+    dcterms:title "HD-XAPI Data Governance Policies"@en ;
+    dcterms:description "ODRL policies for governing xAPI statement access, export, and retention."@en ;
+    dcterms:creator "HD-XAPI Project" ;
+    dcterms:created "2026-01-07"^^xsd:date ;
+    odrl:profile <https://w3id.org/xapi/odrl-profile> .
+
+# =============================================================================
+# ANONYMIZATION POLICIES
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Policy: Research Data Export (Anonymized)
+# -----------------------------------------------------------------------------
+
+:ResearchExportPolicy a odrl:Policy ;
+    rdfs:label "Research Data Export Policy"@en ;
+    rdfs:comment "Policy requiring anonymization for research data exports."@en ;
+    odrl:profile <https://w3id.org/xapi/odrl-profile> ;
+
+    odrl:permission [
+        odrl:action odrl:read ;
+        odrl:target :StatementsCollection ;
+        odrl:assignee :ResearcherRole ;
+
+        odrl:constraint [
+            odrl:leftOperand :isAnonymized ;
+            odrl:operator odrl:eq ;
+            odrl:rightOperand "true"^^xsd:boolean
+        ] ;
+
+        odrl:duty [
+            odrl:action :anonymize ;
+            odrl:target :PersonallyIdentifiableInformation ;
+            odrl:constraint [
+                odrl:leftOperand :anonymizationMethod ;
+                odrl:operator odrl:isA ;
+                odrl:rightOperand :SHA256Hash
+            ]
+        ]
+    ] .
+
+# -----------------------------------------------------------------------------
+# Policy: Public Analytics (Aggregated Only)
+# -----------------------------------------------------------------------------
+
+:PublicAnalyticsPolicy a odrl:Policy ;
+    rdfs:label "Public Analytics Policy"@en ;
+    rdfs:comment "Policy for public analytics - aggregated data only."@en ;
+
+    odrl:permission [
+        odrl:action odrl:read ;
+        odrl:target :AggregatedMetrics ;
+        odrl:assignee odrl:public ;
+
+        odrl:constraint [
+            odrl:leftOperand :aggregationLevel ;
+            odrl:operator odrl:gteq ;
+            odrl:rightOperand "10"^^xsd:integer ;
+            rdfs:comment "Minimum group size of 10 for k-anonymity"
+        ]
+    ] ;
+
+    odrl:prohibition [
+        odrl:action odrl:read ;
+        odrl:target :IndividualStatements ;
+        odrl:assignee odrl:public
+    ] .
+
+# =============================================================================
+# ACCESS CONTROL POLICIES
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Policy: Learner Self-Access
+# -----------------------------------------------------------------------------
+
+:LearnerSelfAccessPolicy a odrl:Policy ;
+    rdfs:label "Learner Self-Access Policy"@en ;
+    rdfs:comment "Learners can access their own statements."@en ;
+
+    odrl:permission [
+        odrl:action odrl:read ;
+        odrl:target :StatementsCollection ;
+        odrl:assignee :LearnerRole ;
+
+        odrl:constraint [
+            odrl:leftOperand :statementActor ;
+            odrl:operator odrl:eq ;
+            odrl:rightOperand :requestingUser
+        ]
+    ] ;
+
+    odrl:permission [
+        odrl:action odrl:delete ;
+        odrl:target :StatementsCollection ;
+        odrl:assignee :LearnerRole ;
+
+        odrl:constraint [
+            odrl:leftOperand :statementActor ;
+            odrl:operator odrl:eq ;
+            odrl:rightOperand :requestingUser
+        ] ;
+        odrl:constraint [
+            odrl:leftOperand dpv:Purpose ;
+            odrl:operator odrl:eq ;
+            odrl:rightOperand dpv:RightToErasure
+        ]
+    ] .
+
+# -----------------------------------------------------------------------------
+# Policy: Instructor Access
+# -----------------------------------------------------------------------------
+
+:InstructorAccessPolicy a odrl:Policy ;
+    rdfs:label "Instructor Access Policy"@en ;
+    rdfs:comment "Instructors can access statements for their courses."@en ;
+
+    odrl:permission [
+        odrl:action odrl:read ;
+        odrl:target :StatementsCollection ;
+        odrl:assignee :InstructorRole ;
+
+        odrl:constraint [
+            odrl:leftOperand :courseInstructor ;
+            odrl:operator odrl:eq ;
+            odrl:rightOperand :requestingUser
+        ]
+    ] ;
+
+    odrl:prohibition [
+        odrl:action odrl:modify ;
+        odrl:target :StatementsCollection ;
+        odrl:assignee :InstructorRole ;
+        rdfs:comment "Instructors cannot modify student statements"
+    ] .
+
+# -----------------------------------------------------------------------------
+# Policy: Administrator Access
+# -----------------------------------------------------------------------------
+
+:AdminAccessPolicy a odrl:Policy ;
+    rdfs:label "Administrator Access Policy"@en ;
+    rdfs:comment "Full access for system administrators."@en ;
+
+    odrl:permission [
+        odrl:action odrl:use ;
+        odrl:target :StatementsCollection ;
+        odrl:assignee :AdminRole ;
+
+        odrl:duty [
+            odrl:action :auditLog ;
+            odrl:constraint [
+                odrl:leftOperand :logRetention ;
+                odrl:operator odrl:gteq ;
+                odrl:rightOperand "P7Y"^^xsd:duration
+            ]
+        ]
+    ] .
+
+# =============================================================================
+# RETENTION POLICIES
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Policy: Standard Data Retention
+# -----------------------------------------------------------------------------
+
+:StandardRetentionPolicy a odrl:Policy ;
+    rdfs:label "Standard Data Retention Policy"@en ;
+    rdfs:comment "Standard 7-year retention for compliance."@en ;
+
+    odrl:permission [
+        odrl:action odrl:archive ;
+        odrl:target :StatementsCollection ;
+
+        odrl:constraint [
+            odrl:leftOperand :dataAge ;
+            odrl:operator odrl:gteq ;
+            odrl:rightOperand "P7Y"^^xsd:duration
+        ]
+    ] ;
+
+    odrl:duty [
+        odrl:action odrl:delete ;
+        odrl:constraint [
+            odrl:leftOperand :dataAge ;
+            odrl:operator odrl:gt ;
+            odrl:rightOperand "P10Y"^^xsd:duration
+        ] ;
+        odrl:constraint [
+            odrl:leftOperand :hasLegalHold ;
+            odrl:operator odrl:eq ;
+            odrl:rightOperand "false"^^xsd:boolean
+        ]
+    ] .
+
+# -----------------------------------------------------------------------------
+# Policy: Credential Retention
+# -----------------------------------------------------------------------------
+
+:CredentialRetentionPolicy a odrl:Policy ;
+    rdfs:label "Credential Retention Policy"@en ;
+    rdfs:comment "Credential-related statements retained indefinitely."@en ;
+
+    odrl:prohibition [
+        odrl:action odrl:delete ;
+        odrl:target :CredentialStatements ;
+
+        odrl:constraint [
+            odrl:leftOperand :statementVerb ;
+            odrl:operator odrl:isA ;
+            odrl:rightOperand tla:conferred
+        ]
+    ] .
+
+# =============================================================================
+# CONSENT-BASED POLICIES
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Policy: Consent Required for Third-Party Sharing
+# -----------------------------------------------------------------------------
+
+:ThirdPartySharingPolicy a odrl:Policy ;
+    rdfs:label "Third-Party Sharing Policy"@en ;
+    rdfs:comment "Requires explicit consent for sharing with third parties."@en ;
+
+    odrl:permission [
+        odrl:action odrl:distribute ;
+        odrl:target :StatementsCollection ;
+        odrl:assignee :ThirdPartyRole ;
+
+        odrl:constraint [
+            odrl:leftOperand dpv:hasConsent ;
+            odrl:operator odrl:eq ;
+            odrl:rightOperand "true"^^xsd:boolean
+        ] ;
+        odrl:constraint [
+            odrl:leftOperand dpv:ConsentType ;
+            odrl:operator odrl:eq ;
+            odrl:rightOperand dpv:ExplicitlyGivenConsent
+        ]
+    ] .
+
+# -----------------------------------------------------------------------------
+# Policy: Purpose Limitation
+# -----------------------------------------------------------------------------
+
+:PurposeLimitationPolicy a odrl:Policy ;
+    rdfs:label "Purpose Limitation Policy"@en ;
+    rdfs:comment "Data use limited to specified purposes."@en ;
+
+    odrl:permission [
+        odrl:action odrl:use ;
+        odrl:target :StatementsCollection ;
+
+        odrl:constraint [
+            odrl:leftOperand dpv:Purpose ;
+            odrl:operator odrl:isAnyOf ;
+            odrl:rightOperand (
+                dpv:PersonalDataAnalytics
+                dpv:LearningAnalytics
+                dpv:AcademicResearch
+                dpv:ServiceProvision
+            )
+        ]
+    ] ;
+
+    odrl:prohibition [
+        odrl:action odrl:use ;
+        odrl:target :StatementsCollection ;
+
+        odrl:constraint [
+            odrl:leftOperand dpv:Purpose ;
+            odrl:operator odrl:isAnyOf ;
+            odrl:rightOperand (
+                dpv:Marketing
+                dpv:Profiling
+                dpv:TargetedAdvertising
+            )
+        ]
+    ] .
+
+# =============================================================================
+# GEOGRAPHIC & JURISDICTIONAL POLICIES
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Policy: EU Data Residency
+# -----------------------------------------------------------------------------
+
+:EUDataResidencyPolicy a odrl:Policy ;
+    rdfs:label "EU Data Residency Policy"@en ;
+    rdfs:comment "GDPR compliance for EU data subjects."@en ;
+
+    odrl:prohibition [
+        odrl:action odrl:transfer ;
+        odrl:target :EUSubjectStatements ;
+
+        odrl:constraint [
+            odrl:leftOperand :destinationRegion ;
+            odrl:operator odrl:neq ;
+            odrl:rightOperand :EuropeanEconomicArea
+        ] ;
+
+        odrl:remedy [
+            odrl:action :applyAdequacyDecision ;
+            rdfs:comment "Allow transfer if adequacy decision exists"
+        ] ;
+        odrl:remedy [
+            odrl:action :applyStandardContractualClauses ;
+            rdfs:comment "Allow transfer with SCCs"
+        ]
+    ] .
+
+# =============================================================================
+# CUSTOM POLICY OPERANDS
+# =============================================================================
+
+:isAnonymized a odrl:LeftOperand ;
+    rdfs:label "is anonymized"@en ;
+    rdfs:comment "Whether data has been anonymized."@en .
+
+:anonymizationMethod a odrl:LeftOperand ;
+    rdfs:label "anonymization method"@en ;
+    rdfs:comment "Method used for anonymization."@en .
+
+:aggregationLevel a odrl:LeftOperand ;
+    rdfs:label "aggregation level"@en ;
+    rdfs:comment "Minimum count for data aggregation (k-anonymity)."@en .
+
+:statementActor a odrl:LeftOperand ;
+    rdfs:label "statement actor"@en ;
+    rdfs:comment "The actor in the statement."@en .
+
+:courseInstructor a odrl:LeftOperand ;
+    rdfs:label "course instructor"@en ;
+    rdfs:comment "The instructor for the course context."@en .
+
+:dataAge a odrl:LeftOperand ;
+    rdfs:label "data age"@en ;
+    rdfs:comment "Age of the data from creation."@en .
+
+:hasLegalHold a odrl:LeftOperand ;
+    rdfs:label "has legal hold"@en ;
+    rdfs:comment "Whether data is under legal hold."@en .
+
+:statementVerb a odrl:LeftOperand ;
+    rdfs:label "statement verb"@en ;
+    rdfs:comment "The verb in the statement."@en .
+
+:destinationRegion a odrl:LeftOperand ;
+    rdfs:label "destination region"@en ;
+    rdfs:comment "Geographic region of data destination."@en .
+
+:logRetention a odrl:LeftOperand ;
+    rdfs:label "log retention"@en ;
+    rdfs:comment "Duration for audit log retention."@en .
+
+:requestingUser a odrl:RightOperand ;
+    rdfs:label "requesting user"@en ;
+    rdfs:comment "The user making the request (resolved at runtime)."@en .
+
+# =============================================================================
+# CUSTOM ACTIONS
+# =============================================================================
+
+:anonymize a odrl:Action ;
+    rdfs:label "anonymize"@en ;
+    rdfs:comment "Remove or obfuscate personally identifiable information."@en ;
+    rdfs:subClassOf odrl:use .
+
+:auditLog a odrl:Action ;
+    rdfs:label "audit log"@en ;
+    rdfs:comment "Create an audit log entry."@en ;
+    rdfs:subClassOf odrl:use .
+
+:applyAdequacyDecision a odrl:Action ;
+    rdfs:label "apply adequacy decision"@en ;
+    rdfs:comment "Apply EU adequacy decision for data transfer."@en .
+
+:applyStandardContractualClauses a odrl:Action ;
+    rdfs:label "apply standard contractual clauses"@en ;
+    rdfs:comment "Apply EU Standard Contractual Clauses for data transfer."@en .
+
+# =============================================================================
+# ASSET DEFINITIONS
+# =============================================================================
+
+:StatementsCollection a odrl:AssetCollection ;
+    rdfs:label "Statements Collection"@en ;
+    rdfs:comment "All xAPI statements in the LRS."@en .
+
+:AggregatedMetrics a odrl:Asset ;
+    rdfs:label "Aggregated Metrics"@en ;
+    rdfs:comment "Aggregated/summarized learning metrics."@en .
+
+:IndividualStatements a odrl:Asset ;
+    rdfs:label "Individual Statements"@en ;
+    rdfs:comment "Individual learner statements."@en .
+
+:CredentialStatements a odrl:Asset ;
+    rdfs:label "Credential Statements"@en ;
+    rdfs:comment "Statements related to credentials."@en .
+
+:EUSubjectStatements a odrl:Asset ;
+    rdfs:label "EU Subject Statements"@en ;
+    rdfs:comment "Statements from EU data subjects."@en .
+
+:PersonallyIdentifiableInformation a odrl:Asset ;
+    rdfs:label "Personally Identifiable Information"@en ;
+    rdfs:comment "PII elements in statements."@en .
+
+# =============================================================================
+# PARTY DEFINITIONS
+# =============================================================================
+
+:LearnerRole a odrl:Party ;
+    rdfs:label "Learner"@en ;
+    rdfs:comment "A learner accessing their own data."@en .
+
+:InstructorRole a odrl:Party ;
+    rdfs:label "Instructor"@en ;
+    rdfs:comment "An instructor accessing course data."@en .
+
+:AdminRole a odrl:Party ;
+    rdfs:label "Administrator"@en ;
+    rdfs:comment "A system administrator."@en .
+
+:ResearcherRole a odrl:Party ;
+    rdfs:label "Researcher"@en ;
+    rdfs:comment "An approved researcher."@en .
+
+:ThirdPartyRole a odrl:Party ;
+    rdfs:label "Third Party"@en ;
+    rdfs:comment "External third party."@en .
+
+# =============================================================================
+# ANONYMIZATION METHODS
+# =============================================================================
+
+:SHA256Hash a :AnonymizationMethod ;
+    rdfs:label "SHA-256 Hash"@en ;
+    rdfs:comment "One-way hash using SHA-256."@en .
+
+:Pseudonymization a :AnonymizationMethod ;
+    rdfs:label "Pseudonymization"@en ;
+    rdfs:comment "Reversible identifier replacement."@en .
+
+:Generalization a :AnonymizationMethod ;
+    rdfs:label "Generalization"@en ;
+    rdfs:comment "Reduce precision of values."@en .
+
+:Suppression a :AnonymizationMethod ;
+    rdfs:label "Suppression"@en ;
+    rdfs:comment "Remove values entirely."@en .
+
+# =============================================================================
+# REGION DEFINITIONS
+# =============================================================================
+
+:EuropeanEconomicArea a :Region ;
+    rdfs:label "European Economic Area"@en .
+
+:UnitedStates a :Region ;
+    rdfs:label "United States"@en .
+
+:AdequacyCountries a :RegionSet ;
+    rdfs:label "Countries with EU Adequacy Decision"@en .
