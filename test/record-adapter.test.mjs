@@ -72,11 +72,14 @@ test('the real browser conversion handler serializes one projection in all three
     const input = sample(), raw = JSON.stringify(input), modal = { classList: { add(value) { assert.equal(value, 'active'); } } };
     const output = { textContent: '' }, context = { HDXAPIRecord: adapter, N3, document: { addEventListener() {}, getElementById(id) { return id === 'rdf-modal' ? modal : output; } } };
     vm.createContext(context);
-    vm.runInContext(readFileSync(new URL('../playground/js/playground.js', import.meta.url), 'utf8') + '\neditor={getValue:()=> ' + JSON.stringify(raw) + '}; this.convert=convertToRDF;this.outputs=()=>currentRDFOutput;', context);
+    vm.runInContext(readFileSync(new URL('../playground/js/playground.js', import.meta.url), 'utf8') + '\neditor={getValue:()=> ' + JSON.stringify(raw) + '}; this.convert=convertToRDF;this.outputs=()=>currentRDFOutput;this.clear=clearResults;', context);
     await context.convert();
     const values = context.outputs(); assert.deepEqual(Object.keys(values), ['turtle', 'ntriples', 'jsonld']);
     assert.deepEqual(terms(parsed(values.turtle)), terms(parsed(values.ntriples)));
     assert.match(output.textContent, /foxxi-bridge/);
+    context.clear();
+    assert.match(output.innerHTML, /Validate checks browser structural rules\. Full SHACL validation requires a separate engine\./);
+    assert.doesNotMatch(output.innerHTML, /check it against SHACL shapes/);
 });
 
 test('the current page can initialize its example menu without the absent optional examples grid', () => {

@@ -459,7 +459,7 @@ function clearResults() {
     resultsContent.innerHTML = `
         <div class="placeholder">
             <div class="placeholder-icon">&#9998;</div>
-            <p>Enter an xAPI statement and click "Validate" to check it against SHACL shapes.</p>
+            <p>Validate checks browser structural rules. Full SHACL validation requires a separate engine.</p>
         </div>
     `;
 }
