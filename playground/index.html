@@ -78,7 +78,7 @@
                     <div id="results-content" class="results-content">
                         <div class="placeholder">
                             <div class="placeholder-icon">&#9998;</div>
-                            <p>Enter an xAPI statement and click "Validate" to check it against SHACL shapes.</p>
+                            <p>Validate checks browser structural rules. Full SHACL validation requires a separate engine.</p>
                         </div>
                     </div>
                 </div>
@@ -103,19 +103,19 @@
                     <div id="inference-input-display" class="inference-input-display"></div>
                     <div class="editor-footer">
                         <button id="run-inference-btn" class="btn btn-primary">
-                            <span class="btn-icon">&#9881;</span> Run SHACL-AF Inference
+                            <span class="btn-icon">&#9881;</span> Project record
                         </button>
                     </div>
                 </div>
 
                 <div class="inference-output-panel">
                     <div class="panel-header">
-                        <h2>Auto-Generated Facts</h2>
-                        <span class="badge badge-green">HD-XAPI Only</span>
+                        <h2>Executed record projection</h2>
+                        <span class="badge badge-blue">Bounded adapter</span>
                     </div>
                     <div id="inference-results" class="inference-results">
                         <div class="placeholder">
-                            <p>Click "Run Inference" to see auto-generated facts</p>
+                            <p>Project this JSON into a separate informational record. Full SHACL-AF, competency and credential rules are not executed here.</p>
                         </div>
                     </div>
                 </div>
@@ -339,8 +339,8 @@
                         <p>Machine-readable constraints that validate statements against profile requirements with detailed error reporting.</p>
                     </div>
                     <div class="about-card">
-                        <h3>SHACL-AF Rules</h3>
-                        <p>Inference rules that generate PROV links, registration joins, and competency assertions automatically.</p>
+                        <h3>SHACL-AF Rule Specifications</h3>
+                        <p>The ontology specifies PROV, registration and competency rules for a separate rules engine. This playground executes only the bounded record projection.</p>
                     </div>
                     <div class="about-card">
                         <h3>ODRL Policies</h3>
@@ -390,6 +390,7 @@
                 <button class="modal-close">&times;</button>
             </div>
             <div class="modal-body">
+                <p>One graph in three formats: the HD activity remains separate from its informational Foxxi record. Original JSON is retained as source text. This does not validate full Foxxi shapes or infer learner achievement.</p>
                 <div class="format-tabs">
                     <button class="format-tab active" data-format="turtle">Turtle</button>
                     <button class="format-tab" data-format="ntriples">N-Triples</button>
@@ -414,6 +415,7 @@
     <!-- Application -->
     <script src="js/examples.js"></script>
     <script src="js/ontology.js"></script>
+    <script src="js/statement-record.js"></script>
     <script src="js/validator.js"></script>
     <script src="js/inference.js"></script>
     <script src="js/sparql.js"></script>

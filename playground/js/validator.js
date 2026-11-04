@@ -734,85 +734,10 @@ const Validator = {
     }
 };
 
-/**
- * Convert statement to RDF (Turtle format)
- */
-function statementToTurtle(statement) {
-    const lines = [];
-    const prefixes = `@prefix xapi: <https://w3id.org/xapi/ontology#> .
-@prefix prov: <http://www.w3.org/ns/prov#> .
-@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
-@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-
-`;
-
-    lines.push(prefixes);
-
-    const stmtId = statement.id || 'stmt:' + crypto.randomUUID();
-    lines.push(`<${stmtId}> a xapi:Statement ;`);
-
-    // Actor
-    if (statement.actor) {
-        const actorId = statement.actor.mbox || statement.actor.openid ||
-            (statement.actor.account ? `<${statement.actor.account.homePage}#${statement.actor.account.name}>` : '_:actor');
-        lines.push(`    xapi:actor ${actorId} ;`);
-    }
-
-    // Verb
-    if (statement.verb && statement.verb.id) {
-        lines.push(`    xapi:verb <${statement.verb.id}> ;`);
-    }
-
-    // Object
-    if (statement.object && statement.object.id) {
-        lines.push(`    xapi:object <${statement.object.id}> ;`);
-    }
-
-    // Timestamp
-    if (statement.timestamp) {
-        lines.push(`    xapi:timestamp "${statement.timestamp}"^^xsd:dateTime ;`);
-    }
-
-    // Result
-    if (statement.result) {
-        if (statement.result.success !== undefined) {
-            lines.push(`    xapi:success ${statement.result.success} ;`);
-        }
-        if (statement.result.completion !== undefined) {
-            lines.push(`    xapi:completion ${statement.result.completion} ;`);
-        }
-        if (statement.result.score && statement.result.score.scaled !== undefined) {
-            lines.push(`    xapi:scaledScore ${statement.result.score.scaled} ;`);
-        }
-    }
-
-    // Clean up last semicolon
-    let result = lines.join('\n');
-    result = result.replace(/;\s*$/, ' .');
-
-    return result;
+/** Convert the source-qualified record projection, preserving HD activity identity. */
+async function statementToTurtle(statement, sourceText) {
+    return HDXAPIRecord.serialize(await HDXAPIRecord.project(statement, sourceText === undefined ? {} : { sourceText }), 'turtle', N3);
 }
-
-/**
- * Convert statement to N-Triples format
- */
-function statementToNTriples(statement) {
-    const triples = [];
-    const stmtId = statement.id ? `<urn:uuid:${statement.id}>` : `<urn:uuid:${crypto.randomUUID()}>`;
-
-    triples.push(`${stmtId} <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <https://w3id.org/xapi/ontology#Statement> .`);
-
-    if (statement.verb && statement.verb.id) {
-        triples.push(`${stmtId} <https://w3id.org/xapi/ontology#verb> <${statement.verb.id}> .`);
-    }
-
-    if (statement.object && statement.object.id) {
-        triples.push(`${stmtId} <https://w3id.org/xapi/ontology#object> <${statement.object.id}> .`);
-    }
-
-    if (statement.timestamp) {
-        triples.push(`${stmtId} <https://w3id.org/xapi/ontology#timestamp> "${statement.timestamp}"^^<http://www.w3.org/2001/XMLSchema#dateTime> .`);
-    }
-
-    return triples.join('\n');
+async function statementToNTriples(statement, sourceText) {
+    return HDXAPIRecord.serialize(await HDXAPIRecord.project(statement, sourceText === undefined ? {} : { sourceText }), 'ntriples', N3);
 }

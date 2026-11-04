@@ -88,6 +88,7 @@ function initExamples() {
 
     // Populate examples grid
     const grid = document.getElementById('examples-grid');
+    if (!grid) return; // The current page keeps examples in the select menu.
     const examples = getExamplesArray();
 
     examples.forEach(example => {
@@ -392,7 +393,7 @@ function validateStatement() {
 /**
  * Convert statement to RDF
  */
-function convertToRDF() {
+async function convertToRDF() {
     let statement;
     try {
         statement = JSON.parse(editor.getValue());
@@ -401,12 +402,15 @@ function convertToRDF() {
         return;
     }
 
-    // Generate all formats
-    currentRDFOutput = {
-        turtle: statementToTurtle(statement),
-        ntriples: statementToNTriples(statement),
-        jsonld: JSON.stringify(statement, null, 2)
-    };
+    // All formats serialize one actual graph, not unrelated partial conversions.
+    try {
+        const projection = await HDXAPIRecord.project(statement, { sourceText: editor.getValue() });
+        currentRDFOutput = Object.fromEntries(['turtle', 'ntriples', 'jsonld'].map(format =>
+            [format, HDXAPIRecord.serialize(projection, format, N3)]));
+    } catch (error) {
+        showError('Projection refused: ' + error.message);
+        return;
+    }
 
     // Show modal
     const modal = document.getElementById('rdf-modal');
