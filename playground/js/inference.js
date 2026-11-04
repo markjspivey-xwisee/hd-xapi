@@ -1,12 +1,9 @@
-/**
- * HD-XAPI Playground - Inference Demo
- * Demonstrates SHACL-AF rule inference capabilities
- */
+/** HD-XAPI Playground: executed source-qualified record projection, not a SHACL-AF engine. */
 
 const INFERENCE_EXAMPLES = {
-    'completed-course': {
-        name: 'Completed Course',
-        statement: {
+    "completed-course": {
+        "name": "Completed Course",
+        "statement": {
             "@id": "urn:uuid:stmt-001",
             "actor": {
                 "name": "Alice Learner",
@@ -14,43 +11,25 @@ const INFERENCE_EXAMPLES = {
             },
             "verb": {
                 "id": "http://adlnet.gov/expapi/verbs/completed",
-                "display": { "en": "completed" }
+                "display": {
+                    "en": "completed"
+                }
             },
             "object": {
                 "id": "https://example.org/courses/intro-xapi",
                 "definition": {
-                    "name": { "en": "Introduction to xAPI" },
+                    "name": {
+                        "en": "Introduction to xAPI"
+                    },
                     "type": "http://adlnet.gov/expapi/activities/course"
                 }
             },
             "timestamp": "2026-01-07T10:30:00Z"
-        },
-        inferences: [
-            {
-                rule: 'PROV Generation',
-                icon: '🔗',
-                facts: [
-                    '<stmt-001> rdf:type prov:Activity .',
-                    '<stmt-001> prov:wasAssociatedWith <mailto:alice@example.org> .',
-                    '<stmt-001> prov:used <courses/intro-xapi> .',
-                    '<stmt-001> prov:endedAtTime "2026-01-07T10:30:00Z"^^xsd:dateTime .'
-                ]
-            },
-            {
-                rule: 'Activity Completion',
-                icon: '✅',
-                facts: [
-                    '<courses/intro-xapi> :hasCompletion [ ',
-                    '    :completedBy <mailto:alice@example.org> ;',
-                    '    :completedAt "2026-01-07T10:30:00Z"^^xsd:dateTime',
-                    '] .'
-                ]
-            }
-        ]
+        }
     },
-    'passed-assessment': {
-        name: 'Passed Assessment',
-        statement: {
+    "passed-assessment": {
+        "name": "Passed Assessment",
+        "statement": {
             "@id": "urn:uuid:stmt-002",
             "actor": {
                 "name": "Bob Student",
@@ -58,12 +37,16 @@ const INFERENCE_EXAMPLES = {
             },
             "verb": {
                 "id": "http://adlnet.gov/expapi/verbs/passed",
-                "display": { "en": "passed" }
+                "display": {
+                    "en": "passed"
+                }
             },
             "object": {
                 "id": "https://example.org/assessments/xapi-cert-exam",
                 "definition": {
-                    "name": { "en": "xAPI Certification Exam" },
+                    "name": {
+                        "en": "xAPI Certification Exam"
+                    },
                     "type": "http://adlnet.gov/expapi/activities/assessment",
                     "extensions": {
                         "https://w3id.org/xapi/tla#assessesCompetency": "https://example.org/competencies/xapi-impl"
@@ -71,45 +54,17 @@ const INFERENCE_EXAMPLES = {
                 }
             },
             "result": {
-                "score": { "scaled": 0.92 },
+                "score": {
+                    "scaled": 0.92
+                },
                 "success": true
             },
             "timestamp": "2026-01-07T14:00:00Z"
-        },
-        inferences: [
-            {
-                rule: 'PROV Generation',
-                icon: '🔗',
-                facts: [
-                    '<stmt-002> rdf:type prov:Activity .',
-                    '<stmt-002> prov:wasAssociatedWith <mailto:bob@example.org> .',
-                    '<stmt-002> prov:generated <result-002> .'
-                ]
-            },
-            {
-                rule: 'Competency Assertion',
-                icon: '🏆',
-                facts: [
-                    '_:assertion rdf:type tla:CompetencyAssertion .',
-                    '_:assertion tla:assertsCompetency <competencies/xapi-impl> .',
-                    '_:assertion tla:confidenceLevel 0.92 .',
-                    '_:assertion prov:wasGeneratedBy <stmt-002> .',
-                    '_:assertion prov:wasAttributedTo <mailto:bob@example.org> .'
-                ]
-            },
-            {
-                rule: 'Credential Qualification Check',
-                icon: '📜',
-                facts: [
-                    '<mailto:bob@example.org> :qualifiedFor <credentials/xapi-cert> .',
-                    '# All required competencies met!'
-                ]
-            }
-        ]
+        }
     },
-    'learning-session': {
-        name: 'Learning Session with Registration',
-        statement: {
+    "learning-session": {
+        "name": "Learning Session with Registration",
+        "statement": {
             "@id": "urn:uuid:stmt-003",
             "actor": {
                 "name": "Carol Developer",
@@ -117,73 +72,61 @@ const INFERENCE_EXAMPLES = {
             },
             "verb": {
                 "id": "http://adlnet.gov/expapi/verbs/experienced",
-                "display": { "en": "experienced" }
+                "display": {
+                    "en": "experienced"
+                }
             },
             "object": {
                 "id": "https://example.org/modules/module-2",
                 "definition": {
-                    "name": { "en": "Module 2: Advanced Topics" }
+                    "name": {
+                        "en": "Module 2: Advanced Topics"
+                    }
                 }
             },
             "context": {
                 "registration": "reg-uuid-12345",
                 "contextActivities": {
-                    "parent": [{
-                        "id": "https://example.org/courses/advanced-xapi"
-                    }]
+                    "parent": [
+                        {
+                            "id": "https://example.org/courses/advanced-xapi"
+                        }
+                    ]
                 }
             },
             "timestamp": "2026-01-07T09:00:00Z"
-        },
-        inferences: [
-            {
-                rule: 'PROV Generation',
-                icon: '🔗',
-                facts: [
-                    '<stmt-003> rdf:type prov:Activity .',
-                    '<stmt-003> prov:wasAssociatedWith <mailto:carol@example.org> .',
-                    '<stmt-003> prov:used <modules/module-2> .'
-                ]
-            },
-            {
-                rule: 'Registration Join',
-                icon: '👥',
-                facts: [
-                    '<stmt-003> :sameRegistration <stmt-003a> .',
-                    '<stmt-003> :sameRegistration <stmt-003b> .',
-                    '# Links to other statements with reg-uuid-12345'
-                ]
-            },
-            {
-                rule: 'Activity Hierarchy',
-                icon: '📊',
-                facts: [
-                    '<modules/module-2> :hasParent <courses/advanced-xapi> .',
-                    '<courses/advanced-xapi> :hasChild <modules/module-2> .'
-                ]
-            }
-        ]
+        }
     },
-    'team-activity': {
-        name: 'Team Activity',
-        statement: {
+    "team-activity": {
+        "name": "Team Activity",
+        "statement": {
             "@id": "urn:uuid:stmt-004",
             "actor": {
                 "objectType": "Group",
                 "name": "Project Team Alpha",
                 "member": [
-                    { "name": "Dave", "mbox": "mailto:dave@example.org" },
-                    { "name": "Eve", "mbox": "mailto:eve@example.org" }
+                    {
+                        "name": "Dave",
+                        "mbox": "mailto:dave@example.org"
+                    },
+                    {
+                        "name": "Eve",
+                        "mbox": "mailto:eve@example.org"
+                    }
                 ]
             },
             "verb": {
                 "id": "http://adlnet.gov/expapi/verbs/completed",
-                "display": { "en": "completed" }
+                "display": {
+                    "en": "completed"
+                }
             },
             "object": {
                 "id": "https://example.org/projects/team-exercise",
                 "definition": {
-                    "name": { "en": "Team Collaboration Exercise" }
+                    "name": {
+                        "en": "Team Collaboration Exercise"
+                    }
                 }
             },
             "context": {
@@ -193,36 +136,7 @@ const INFERENCE_EXAMPLES = {
                 }
             },
             "timestamp": "2026-01-07T16:00:00Z"
-        },
-        inferences: [
-            {
-                rule: 'PROV Generation',
-                icon: '🔗',
-                facts: [
-                    '<stmt-004> rdf:type prov:Activity .',
-                    '<stmt-004> prov:wasAssociatedWith _:teamAlpha .',
-                    '<stmt-004> prov:used <projects/team-exercise> .'
-                ]
-            },
-            {
-                rule: 'Team Member Attribution',
-                icon: '👥',
-                facts: [
-                    '_:teamAlpha foaf:member <mailto:dave@example.org> .',
-                    '_:teamAlpha foaf:member <mailto:eve@example.org> .',
-                    '<mailto:dave@example.org> :participatedIn <stmt-004> .',
-                    '<mailto:eve@example.org> :participatedIn <stmt-004> .'
-                ]
-            },
-            {
-                rule: 'Instructor Link',
-                icon: '👨‍🏫',
-                facts: [
-                    '<stmt-004> :hadInstructor <mailto:smith@university.edu> .',
-                    '<projects/team-exercise> :taughtBy <mailto:smith@university.edu> .'
-                ]
-            }
-        ]
+        }
     }
 };
 
@@ -267,55 +181,26 @@ function displayInferenceInput() {
 /**
  * Run inference and show results
  */
-function runInference() {
+async function runInference() {
     const resultsDiv = document.getElementById('inference-results');
-    if (!resultsDiv) return;
-
     const example = INFERENCE_EXAMPLES[currentInferenceExample];
-    if (!example) return;
-
-    // Add animation class
-    resultsDiv.innerHTML = '<div class="inference-loading">Running SHACL-AF rules...</div>';
-
-    // Simulate inference processing
-    setTimeout(() => {
-        let html = '<div class="inference-facts">';
-
-        example.inferences.forEach((inference, idx) => {
-            html += `
-                <div class="inference-group" style="animation-delay: ${idx * 0.2}s">
-                    <div class="inference-rule-header">
-                        <span class="rule-icon">${inference.icon}</span>
-                        <span class="rule-name">${inference.rule}</span>
-                        <span class="badge badge-blue">Generated</span>
-                    </div>
-                    <div class="inference-triples">
-                        <pre class="turtle-display">${inference.facts.join('\n')}</pre>
-                    </div>
-                </div>
-            `;
-        });
-
-        html += `
-            <div class="inference-summary">
-                <div class="summary-stat">
-                    <span class="stat-number">${example.inferences.length}</span>
-                    <span class="stat-label">Rules Fired</span>
-                </div>
-                <div class="summary-stat">
-                    <span class="stat-number">${example.inferences.reduce((acc, i) => acc + i.facts.length, 0)}</span>
-                    <span class="stat-label">Triples Generated</span>
-                </div>
-            </div>
-            <div class="vanilla-warning">
-                <strong>⚠️ Vanilla xAPI:</strong> None of these facts would be generated.
-                You would need to manually query and compute all relationships.
-            </div>
-        `;
-
-        html += '</div>';
-        resultsDiv.innerHTML = html;
-    }, 800);
+    if (!resultsDiv || !example) return;
+    resultsDiv.textContent = 'Projecting this JSON statement...';
+    try {
+        const projection = await HDXAPIRecord.project(example.statement);
+        const heading = document.createElement('h3');
+        heading.textContent = 'Executed HD activity / informational record projection';
+        const note = document.createElement('p');
+        note.textContent = projection.scope + '. Other SHACL-AF, competency and credential rules are not executed here.';
+        const count = document.createElement('p');
+        count.textContent = projection.triples.length + ' actual RDF triples; separate activity, record and preserved JSON source.';
+        const output = document.createElement('pre');
+        output.className = 'turtle-display';
+        output.textContent = HDXAPIRecord.serialize(projection, 'turtle', N3);
+        resultsDiv.replaceChildren(heading, note, count, output);
+    } catch (error) {
+        resultsDiv.textContent = 'Projection refused: ' + error.message;
+    }
 }
 
 /**
@@ -324,7 +209,7 @@ function runInference() {
 function clearInferenceResults() {
     const resultsDiv = document.getElementById('inference-results');
     if (resultsDiv) {
-        resultsDiv.innerHTML = '<div class="placeholder"><p>Click "Run Inference" to see auto-generated facts</p></div>';
+        resultsDiv.innerHTML = '<div class="placeholder"><p>Click "Project record" to execute the bounded JSON-to-RDF adapter</p></div>';
     }
 }
 
